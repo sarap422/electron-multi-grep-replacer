@@ -49,8 +49,8 @@
       "id": "absolute_centering_modern",
       "from": "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);",
       "to": "position: absolute; inset: 0; margin: auto;",
-      "enabled": true,
-      "description": "Modern CSS centering technique using inset",
+      "enabled": false,
+      "description": "WARNING: This replacement is whitespace/order sensitive and the inset+margin:auto requires explicit width/height (unlike translate(-50%,-50%)) and may break layouts. Use with caution and manual review.",
       "case_sensitive": true,
       "whole_word": false
     },

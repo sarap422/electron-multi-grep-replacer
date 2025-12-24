@@ -490,8 +490,9 @@ ${JSON.stringify(result.config, null, 2)}`;
         },
       };
 
-      // 一時ファイルパス作成
-      const tempPath = `/tmp/multi-grep-replacer-test-${Date.now()}.json`;
+      // プラットフォーム非依存の一時ファイルパス作成
+      // メインプロセス側で適切な一時ディレクトリを解決
+      const tempPath = `multi-grep-replacer-test-${Date.now()}.json`;
 
       const result = await window.electronAPI.saveConfig(testConfig, tempPath);
       const responseTime = performance.now() - startTime;
@@ -607,9 +608,14 @@ ${JSON.stringify(result.configs, null, 2)}`;
     try {
       this.updateStatus('Searching files...', '🔍');
 
-      // テスト用のディレクトリ（現在のプロジェクトディレクトリ）
-      const testDirectory =
-        this.selectedFolder || '/Volumes/CT1000P3/pCloud(CT1000P3)/(github)/multi-grep-replacer';
+      // テスト用のディレクトリ（選択フォルダがない場合はユーザーに選択を促す）
+      if (!this.selectedFolder) {
+        await this.handleFolderSelect();
+        if (!this.selectedFolder) {
+          throw new Error('フォルダが選択されていません');
+        }
+      }
+      const testDirectory = this.selectedFolder;
       const testExtensions = ['.js', '.html', '.css', '.md'];
       const testExcludePatterns = ['node_modules/**', 'dist/**'];
 
@@ -674,10 +680,8 @@ ${
     try {
       this.updateStatus('Reading file...', '📄');
 
-      // テスト用ファイル（package.jsonを読み込み）
-      const testFilePath =
-        this.selectedFile ||
-        '/Volumes/CT1000P3/pCloud(CT1000P3)/(github)/multi-grep-replacer/package.json';
+      // テスト用ファイル（選択ファイルがない場合はデフォルトの設定ファイルを使用）
+      const testFilePath = this.selectedFile || 'config/default.json';
 
       const result = await window.electronAPI.readFile(testFilePath);
       const responseTime = performance.now() - startTime;
@@ -732,9 +736,14 @@ ${
         console.warn('⚠️ process object detected in renderer - this should not happen');
       }
 
-      // テスト用のディレクトリ
-      const testDirectory =
-        this.selectedFolder || '/Volumes/CT1000P3/pCloud(CT1000P3)/(github)/multi-grep-replacer';
+      // テスト用のディレクトリ（選択フォルダがない場合はユーザーに選択を促す）
+      if (!this.selectedFolder) {
+        await this.handleFolderSelect();
+        if (!this.selectedFolder) {
+          throw new Error('フォルダが選択されていません');
+        }
+      }
+      const testDirectory = this.selectedFolder;
       const testExtensions = ['.js', '.html', '.css', '.md'];
       const testOptions = {
         maxFileSize: 100 * 1024 * 1024, // 100MB

@@ -39,11 +39,13 @@ claudedocs/
 .npmrc
 .yarnrc
 
-# パスワード・トークン
-*password*
-*secret*
-*token*
-*credentials*
+# 特定のシークレット設定ファイルのみ無視
+.env.local
+.env.*.local
+secrets/
+*.private.json
+config/secrets/
+config/*.private.json
 
 
 # -----------------------------------------------------------------------------
@@ -115,13 +117,8 @@ logs
 debug.*
 error_log
 
-# テストファイル
-test/
-tests/
+# テスト出力のみを無視（テストソースコードは追跡）
 coverage/
-*.test.js
-jest.*js
-babel.config.js
 
 
 # -----------------------------------------------------------------------------
@@ -146,10 +143,11 @@ build/
 .settings/
 .classpath
 .editorconfig
-.eslintrc.js
-.prettierrc.js
-.prettierignore
-.husky
+# 以下のファイルはチーム共有のため追跡が必要
+# .eslintrc.js
+# .prettierrc.js
+# .prettierignore
+# .husky
 
 
 # -----------------------------------------------------------------------------

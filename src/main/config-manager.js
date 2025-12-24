@@ -144,7 +144,7 @@ class ConfigManager {
       await fs.writeFile(filePath, configJson, 'utf8');
 
       const saveTime = performance.now() - startTime;
-      this.logOperation(
+      await this.logOperation(
         'saveConfig',
         { filePath },
         {
@@ -158,7 +158,7 @@ class ConfigManager {
       await this.addToRecentConfigs(filePath);
     } catch (error) {
       const saveTime = performance.now() - startTime;
-      this.logOperation(
+      await this.logOperation(
         'saveConfig',
         { filePath },
         {

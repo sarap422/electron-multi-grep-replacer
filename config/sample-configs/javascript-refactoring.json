@@ -12,9 +12,9 @@
     {
       "id": "var_to_const",
       "from": "var ",
-      "to": "const ",
-      "enabled": true,
-      "description": "Replace var with const for immutable variables",
+      "to": "let ",
+      "enabled": false,
+      "description": "WARNING: This replaces 'var' with 'let' which is safer for reassigned variables. Manual review required for reassignment patterns. Use 'const' only for truly immutable variables.",
       "case_sensitive": true,
       "whole_word": false
     },
@@ -86,7 +86,7 @@
       "from": "document.getElementById(",
       "to": "document.querySelector('#",
       "enabled": false,
-      "description": "Consider using querySelector for consistency",
+      "description": "WARNING: This transformation requires manual intervention to capture the id and insert the leading # inside the quotes, as it only replaces the opening token. Use regex or manual intervention.",
       "case_sensitive": true,
       "whole_word": false
     },

@@ -568,4 +568,4 @@ if (systemInfo > 8 * 1024 * 1024 * 1024) { // 8GB+
 
 ---
 
-*Last updated: 2025-08-18 | Version 1.0.0*
+*Last updated: 2025-12-24 | Version 1.0.0*

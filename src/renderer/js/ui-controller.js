@@ -833,29 +833,71 @@ class UIController {
     ruleDiv.className = 'rule-item new';
     ruleDiv.setAttribute('data-rule-id', rule.id);
 
-    ruleDiv.innerHTML = `
-      <input type="checkbox" class="rule-checkbox" ${rule.enabled ? 'checked' : ''} 
-             aria-label="Enable rule">
-      <span class="rule-from-label">From:</span>
-      <input type="text" class="rule-from" placeholder="検索文字列" 
-             value="${rule.from}" aria-label="Search text">
-      <span class="rule-arrow">→</span>
-      <span class="rule-to-label">To:</span>
-      <input type="text" class="rule-to" placeholder="置換文字列" 
-             value="${rule.to}" aria-label="Replace text">
-      <button class="icon-button rule-delete" title="Delete rule" aria-label="Delete rule">
-        <span>🗑️</span>
-      </button>
-      <button class="icon-button rule-drag" title="Drag to reorder" aria-label="Reorder rule">
-        <span>↕️</span>
-      </button>
-    `;
+    // checkbox要素の作成
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'rule-checkbox';
+    checkbox.checked = !!rule.enabled;
+    checkbox.setAttribute('aria-label', 'Enable rule');
 
-    // イベントリスナー設定
-    const checkbox = ruleDiv.querySelector('.rule-checkbox');
-    const fromInput = ruleDiv.querySelector('.rule-from');
-    const toInput = ruleDiv.querySelector('.rule-to');
-    const deleteButton = ruleDiv.querySelector('.rule-delete');
+    // from label要素の作成
+    const fromLabel = document.createElement('span');
+    fromLabel.className = 'rule-from-label';
+    fromLabel.textContent = 'From:';
+
+    // from input要素の作成
+    const fromInput = document.createElement('input');
+    fromInput.type = 'text';
+    fromInput.className = 'rule-from';
+    fromInput.placeholder = '検索文字列';
+    fromInput.value = rule.from || '';
+    fromInput.setAttribute('aria-label', 'Search text');
+
+    // arrow要素の作成
+    const arrow = document.createElement('span');
+    arrow.className = 'rule-arrow';
+    arrow.textContent = '→';
+
+    // to label要素の作成
+    const toLabel = document.createElement('span');
+    toLabel.className = 'rule-to-label';
+    toLabel.textContent = 'To:';
+
+    // to input要素の作成
+    const toInput = document.createElement('input');
+    toInput.type = 'text';
+    toInput.className = 'rule-to';
+    toInput.placeholder = '置換文字列';
+    toInput.value = rule.to || '';
+    toInput.setAttribute('aria-label', 'Replace text');
+
+    // delete button要素の作成
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'icon-button rule-delete';
+    deleteButton.title = 'Delete rule';
+    deleteButton.setAttribute('aria-label', 'Delete rule');
+    const deleteIcon = document.createElement('span');
+    deleteIcon.textContent = '🗑️';
+    deleteButton.appendChild(deleteIcon);
+
+    // drag button要素の作成
+    const dragButton = document.createElement('button');
+    dragButton.className = 'icon-button rule-drag';
+    dragButton.title = 'Drag to reorder';
+    dragButton.setAttribute('aria-label', 'Reorder rule');
+    const dragIcon = document.createElement('span');
+    dragIcon.textContent = '↕️';
+    dragButton.appendChild(dragIcon);
+
+    // DOM要素をruleDivに追加
+    ruleDiv.appendChild(checkbox);
+    ruleDiv.appendChild(fromLabel);
+    ruleDiv.appendChild(fromInput);
+    ruleDiv.appendChild(arrow);
+    ruleDiv.appendChild(toLabel);
+    ruleDiv.appendChild(toInput);
+    ruleDiv.appendChild(deleteButton);
+    ruleDiv.appendChild(dragButton);
 
     checkbox.addEventListener('change', () => this.handleToggleRule(rule.id));
     fromInput.addEventListener('input', e =>

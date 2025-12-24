@@ -1,5 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2019-09/schema",
   "app_info": {
     "name": "Multi Grep Replacer",
     "version": "1.0.0",

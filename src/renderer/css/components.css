@@ -87,12 +87,6 @@
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
 }
 
-.rule-fields {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 /* ルール構造レイアウト */
 .rule-controls {
   display: flex;
@@ -673,115 +667,6 @@
   }
 }
 
-/* 成功通知 */
-.success-notification {
-  position: fixed;
-  top: 80px;
-  right: 24px;
-  background: var(--success-color);
-  color: var(--text-inverse);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  z-index: 1003;
-  max-width: 350px;
-  animation: slideInRight 0.3s ease;
-}
-
-.success-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.success-icon {
-  font-size: 16px;
-}
-
-.success-title {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.success-message {
-  font-size: 13px;
-  opacity: 0.9;
-  margin-bottom: 12px;
-}
-
-.success-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: none;
-  border: none;
-  color: var(--text-inverse);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: var(--radius-sm);
-  transition: background-color var(--transition-fast);
-}
-
-.success-close:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* エラー通知 */
-.error-notification {
-  position: fixed;
-  top: 80px;
-  right: 24px;
-  background: var(--error-color);
-  color: var(--text-inverse);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  z-index: 1003;
-  max-width: 350px;
-  animation: slideInRight 0.3s ease;
-}
-
-.error-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.error-icon {
-  font-size: 16px;
-}
-
-.error-title {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.error-message {
-  font-size: 13px;
-  opacity: 0.9;
-  margin-bottom: 12px;
-}
-
-.error-close {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: none;
-  border: none;
-  color: var(--text-inverse);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: var(--radius-sm);
-  transition: background-color var(--transition-fast);
-}
-
-.error-close:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
 
 @media (max-width: 480px) {
   .rule-item {

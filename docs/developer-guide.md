@@ -4,7 +4,7 @@
 
 1. [Architecture Overview](#architecture-overview)
 2. [Development Environment Setup](#development-environment-setup)
-3. [Project Structure](#operation-structure)
+3. [Project Structure](#project-structure)
 4. [Core Components](#core-components)
 5. [Build and Deployment](#build-and-deployment)
 6. [Testing](#testing)

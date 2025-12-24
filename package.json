@@ -44,7 +44,7 @@
     "@babel/core": "^7.22.0",
     "@babel/preset-env": "^7.22.0",
     "babel-jest": "^29.0.0",
-    "electron": "^25.0.0",
+    "electron": "^25.8.4",
     "electron-builder": "^24.0.0",
     "eslint": "^8.0.0",
     "eslint-config-prettier": "^8.8.0",
