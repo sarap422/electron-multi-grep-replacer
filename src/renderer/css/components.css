@@ -1,0 +1,921 @@
+/* Multi Grep Replacer - UI Components Stylesheet */
+
+/* ルール項目（置換ルール） */
+.rule-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  transition: var(--transition-normal);
+  position: relative;
+}
+
+.rule-item:hover {
+  background: var(--background-primary);
+  border-color: var(--border-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ルール追加・削除アニメーション */
+.rule-item.rule-appear {
+  animation: ruleAppear 0.3s ease-out;
+}
+
+.rule-item.rule-removing {
+  animation: ruleRemove 0.3s ease-in forwards;
+}
+
+.rule-item.rule-disabled {
+  opacity: 0.6;
+  background: var(--background-disabled, #f5f5f5);
+}
+
+@keyframes ruleAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ruleRemove {
+  to {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.8);
+    height: 0;
+    padding: 0;
+    margin-bottom: 0;
+  }
+}
+
+/* ルールチェックボックス */
+.rule-checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-secondary);
+  border-radius: var(--radius-sm);
+  background: var(--background-primary);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.rule-checkbox:checked {
+  background: var(--border-focus);
+  border-color: var(--border-focus);
+}
+
+.rule-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--text-inverse);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.rule-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.rule-fields {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ルール構造レイアウト */
+.rule-controls {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.rule-fields {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.rule-field-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.rule-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  min-width: 35px;
+}
+
+.rule-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.rule-arrow {
+  font-size: 16px;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+  font-weight: bold;
+}
+
+/* ルール入力フィールド */
+.rule-from,
+.rule-to {
+  flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  background: var(--background-primary);
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+}
+
+.rule-from:focus,
+.rule-to:focus {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+}
+
+.rule-from:invalid,
+.rule-to:invalid {
+  border-color: var(--error-color);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+/* ルールアクションボタン */
+.rule-delete {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rule-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+/* 新しいルール追加ボタン */
+.add-rule-button {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  border: 2px dashed var(--border-secondary);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.add-rule-button:hover {
+  border-color: var(--border-focus);
+  color: var(--border-focus);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+.add-rule-button:active {
+  transform: scale(0.98);
+}
+
+/* モーダル共通スタイル */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  opacity: 1;
+  transition: opacity var(--transition-normal);
+}
+
+.modal.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.modal-content {
+  background: var(--background-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: hidden;
+  position: relative;
+  transform: scale(1);
+  transition: transform var(--transition-normal);
+}
+
+.modal.hidden .modal-content {
+  transform: scale(0.95);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--background-tertiary);
+  color: var(--text-secondary);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  transition: var(--transition-fast);
+  z-index: 1;
+}
+
+.modal-close:hover {
+  background: var(--background-secondary);
+  color: var(--text-primary);
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 48px 0 0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-primary);
+}
+
+/* 進捗モーダル */
+.progress-modal {
+  width: 500px;
+  padding: 32px;
+}
+
+.progress-container {
+  margin: 24px 0;
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  height: 8px;
+  background: var(--background-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: var(--background-accent);
+  border-radius: 4px;
+  transition: width var(--transition-normal);
+  min-width: 0;
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.current-file {
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--background-secondary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-icon {
+  font-size: 14px;
+}
+
+.progress-stats {
+  display: flex;
+  gap: 24px;
+  margin: 20px 0;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.stat-icon {
+  font-size: 14px;
+}
+
+.progress-icon,
+.success-icon {
+  font-size: 24px;
+}
+
+/* 結果モーダル */
+.result-modal {
+  width: 600px;
+  max-height: 80vh;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-summary {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-time {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-details {
+  flex: 1;
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--background-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.result-file {
+  margin: 12px 0;
+  padding: 12px;
+  background: var(--background-primary);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--success-color);
+}
+
+.result-file-path {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-changes {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-left: 20px;
+}
+
+.result-change-item {
+  margin: 4px 0;
+}
+
+.summary-icon,
+.time-icon {
+  font-size: 16px;
+}
+
+/* ツールチップ */
+.tooltip {
+  position: absolute;
+  background: var(--text-primary);
+  color: var(--text-inverse);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 1001;
+  opacity: 1;
+  transition: opacity var(--transition-fast);
+  pointer-events: none;
+  max-width: 200px;
+  box-shadow: var(--shadow-md);
+}
+
+.tooltip.hidden {
+  opacity: 0;
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--text-primary);
+}
+
+/* パフォーマンス警告 */
+.performance-warning {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  background: var(--warning-color);
+  color: var(--text-inverse);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow-lg);
+  z-index: 1002;
+  max-width: 300px;
+  animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ドラッグ & ドロップ状態 */
+.drag-active .folder-input-wrapper .drop-overlay {
+  display: flex !important;
+}
+
+.drag-active .folder-input {
+  border-color: var(--border-focus);
+  background: rgba(79, 70, 229, 0.05);
+}
+
+/* ローディングスピナー */
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* バッジ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge.success {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.badge.warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+}
+
+.badge.error {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+}
+
+.badge.info {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--info-color);
+}
+
+/* コンテキストメニュー */
+.context-menu {
+  position: fixed;
+  background: var(--background-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  padding: 4px 0;
+  min-width: 150px;
+  z-index: 1003;
+  opacity: 1;
+  transform: scale(1);
+  transition: all var(--transition-fast);
+}
+
+.context-menu.hidden {
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--text-primary);
+  cursor: pointer;
+  gap: 8px;
+  transition: var(--transition-fast);
+}
+
+.context-menu-item:hover {
+  background: var(--background-secondary);
+}
+
+.context-menu-item.disabled {
+  color: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.context-menu-item.disabled:hover {
+  background: transparent;
+}
+
+.context-menu-separator {
+  height: 1px;
+  background: var(--border-primary);
+  margin: 4px 0;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .rule-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .rule-from,
+  .rule-to {
+    width: 100%;
+  }
+
+  .rule-from-label,
+  .rule-to-label {
+    min-width: auto;
+  }
+
+  .modal-content {
+    margin: 20px;
+    max-width: calc(100vw - 40px);
+  }
+
+  .progress-modal,
+  .result-modal {
+    width: 100%;
+    max-width: none;
+    padding: 24px;
+  }
+
+  .progress-stats {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .modal-actions .primary-button,
+  .modal-actions .secondary-button,
+  .modal-actions .danger-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tooltip {
+    max-width: 150px;
+    font-size: 11px;
+  }
+
+  .performance-warning,
+  .success-notification,
+  .error-notification {
+    right: 16px;
+    left: 16px;
+    max-width: none;
+  }
+}
+
+/* 成功通知 */
+.success-notification {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  background: var(--success-color);
+  color: var(--text-inverse);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1003;
+  max-width: 350px;
+  animation: slideInRight 0.3s ease;
+}
+
+.success-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.success-icon {
+  font-size: 16px;
+}
+
+.success-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.success-message {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.success-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-inverse);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.success-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* エラー通知 */
+.error-notification {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  background: var(--error-color);
+  color: var(--text-inverse);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1003;
+  max-width: 350px;
+  animation: slideInRight 0.3s ease;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.error-icon {
+  font-size: 16px;
+}
+
+.error-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.error-message {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 12px;
+}
+
+.error-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: var(--text-inverse);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.error-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+@media (max-width: 480px) {
+  .rule-item {
+    padding: 12px;
+  }
+
+  .context-menu {
+    min-width: 120px;
+  }
+
+  .context-menu-item {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+}
+
+/* Success notification styles */
+.success-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--success-color, #4caf50);
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  z-index: 10000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.success-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.success-icon {
+  font-size: 20px;
+}
+
+.success-title {
+  flex: 1;
+}
+
+.success-message {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.success-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.success-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+/* Error notification styles */
+.error-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--error-color, #f44336);
+  color: white;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  z-index: 10000;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.error-icon {
+  font-size: 20px;
+}
+
+.error-title {
+  flex: 1;
+}
+
+.error-message {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+}
+
+.error-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.error-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+/* Fade out animation */
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}

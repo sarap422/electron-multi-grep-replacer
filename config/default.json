@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "app_info": {
+    "name": "Multi Grep Replacer",
+    "version": "1.0.0",
+    "created_at": "2025-07-11T00:00:00Z",
+    "description": "Electron-based multi grep replacer with superior UI responsiveness",
+    "author": "Multi Grep Replacer Team"
+  },
+  "replacements": [],
+  "target_settings": {
+    "file_extensions": [".html", ".css", ".js", ".php", ".md", ".json", ".xml", ".txt"],
+    "exclude_patterns": [
+      "node_modules/**",
+      ".git/**", 
+      "dist/**", 
+      "build/**",
+      "*.min.js",
+      "*.min.css",
+      ".DS_Store",
+      "Thumbs.db"
+    ],
+    "include_subdirectories": true,
+    "max_file_size": 104857600,
+    "encoding": "utf-8"
+  },
+  "replacement_settings": {
+    "case_sensitive": true,
+    "use_regex": false,
+    "backup_enabled": false,
+    "preserve_file_permissions": true,
+    "dry_run": false
+  },
+  "ui_settings": {
+    "theme": "auto",
+    "window": {
+      "width": 800,
+      "height": 700,
+      "resizable": true,
+      "center": true,
+      "min_width": 600,
+      "min_height": 500
+    },
+    "remember_last_folder": true,
+    "auto_save_config": false,
+    "show_file_count_preview": true,
+    "confirm_before_execution": true
+  },
+  "advanced_settings": {
+    "max_concurrent_files": 10,
+    "progress_update_interval": 100,
+    "log_level": "info",
+    "enable_crash_reporting": false,
+    "ui_response_target": 100
+  }
+}

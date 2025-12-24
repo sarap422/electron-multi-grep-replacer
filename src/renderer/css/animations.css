@@ -1,0 +1,571 @@
+/* Multi Grep Replacer - Animations Stylesheet */
+
+/* キーフレーム定義 */
+
+/* フェードイン効果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* フェードアウト効果 */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+/* スライドイン（右から） */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* スライドイン（左から） */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* スライドアップ */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* スライドダウン */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* スケールイン */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* スケールアウト */
+@keyframes scaleOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+}
+
+/* パルス効果 */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 回転アニメーション */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 揺れ効果 */
+@keyframes shake {
+  0%,
+  20%,
+  40%,
+  60%,
+  80%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+}
+
+/* 進捗バーアニメーション */
+@keyframes progressSlide {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 30px 0;
+  }
+}
+
+/* 煌めき効果 */
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* 点滅効果 */
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0.3;
+  }
+}
+
+/* 波紋効果 */
+@keyframes ripple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* アニメーションクラス */
+
+/* 基本フェード */
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* スライド効果 */
+.slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+.slide-in-left {
+  animation: slideInLeft 0.4s ease-out forwards;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+.slide-down {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+/* スケール効果 */
+.scale-in {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+.scale-out {
+  animation: scaleOut 0.2s ease-out forwards;
+}
+
+/* インタラクション効果 */
+.pulse {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+.blink {
+  animation: blink 1s linear infinite;
+}
+
+/* ローディングスピナー */
+.loading-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-primary);
+  border-top: 2px solid var(--border-focus);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* 進捗バー進行アニメーション */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar.animated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+/* ボタンホバー効果 */
+.primary-button,
+.secondary-button,
+.danger-button {
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+}
+
+.primary-button::before,
+.secondary-button::before,
+.danger-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+  pointer-events: none;
+}
+
+.primary-button:active::before,
+.secondary-button:active::before,
+.danger-button:active::before {
+  width: 300px;
+  height: 300px;
+  animation: ripple 0.6s ease-out;
+}
+
+/* ホバー時の浮き上がり効果 */
+.hover-lift {
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* カード出現アニメーション */
+.card-appear {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+.card-appear:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.card-appear:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.card-appear:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.card-appear:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.card-appear:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* モーダル出現・消失アニメーション */
+.modal {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal.closing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.modal-content {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.modal.closing .modal-content {
+  animation: scaleOut 0.3s ease-out forwards;
+}
+
+/* トーストメッセージアニメーション */
+.toast-message {
+  animation: slideInRight 0.4s ease-out;
+}
+
+.toast-message.removing {
+  animation: slideInRight 0.4s ease-out reverse forwards;
+}
+
+/* フォーム入力エラーアニメーション */
+.input-error {
+  animation: shake 0.5s ease-in-out;
+  border-color: var(--error-color) !important;
+}
+
+/* 成功メッセージアニメーション */
+.success-message {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* ドラッグ&ドロップアニメーション */
+.drag-over {
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.dragging {
+  opacity: 0.7;
+  transform: rotate(5deg);
+  transition: transform var(--transition-normal), opacity var(--transition-normal);
+}
+
+/* 新しいルール追加アニメーション */
+.rule-item.new {
+  animation: slideDown 0.4s ease-out;
+}
+
+.rule-item.removing {
+  animation: slideUp 0.3s ease-out forwards;
+  transform-origin: top;
+}
+
+/* パフォーマンス監視インジケーター */
+.response-time.good {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.response-time.warning {
+  animation: blink 1s linear infinite;
+}
+
+.response-time.error {
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+/* セクション表示アニメーション */
+.section-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideUp 0.5s ease-out forwards;
+}
+
+.section-animate:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.section-animate:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.section-animate:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.section-animate:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.section-animate:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* 検索結果アニメーション */
+.search-result-item {
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.search-result-item:nth-child(odd) {
+  animation-delay: 0.1s;
+}
+
+.search-result-item:nth-child(even) {
+  animation-delay: 0.2s;
+}
+
+/* プリセットボタンアニメーション */
+.preset-button {
+  transition: all var(--transition-fast);
+}
+
+.preset-button:hover {
+  transform: translateY(-1px);
+}
+
+.preset-button:active {
+  transform: translateY(0);
+  animation: pulse 0.2s ease-out;
+}
+
+/* テーマ切り替えアニメーション */
+.theme-switching {
+  animation: shimmer 0.8s ease-in-out;
+}
+
+/* ツールチップアニメーション */
+.tooltip {
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.tooltip.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ステータスアイコンアニメーション */
+.status-indicator {
+  transition: transform var(--transition-fast);
+}
+
+.status-indicator.updating {
+  animation: spin 1s linear infinite;
+}
+
+.status-indicator.success {
+  animation: pulse 0.5s ease-out;
+}
+
+.status-indicator.error {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* アクセシビリティ対応 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .pulse,
+  .blink,
+  .spin {
+    animation: none !important;
+  }
+
+  .shake {
+    animation: none !important;
+  }
+}
+
+/* GPU加速最適化 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* 高性能モード（60fps保証） */
+.high-performance {
+  will-change: transform, opacity;
+}
+
+.high-performance:hover {
+  will-change: auto;
+}
+
+/* バックグラウンドアニメーション最適化 */
+.background-animation {
+  animation-fill-mode: both;
+  animation-play-state: running;
+}
+
+.background-animation.paused {
+  animation-play-state: paused;
+}
+
+/* パフォーマンス監視用アニメーション */
+.performance-indicator {
+  position: relative;
+}
+
+.performance-indicator::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--success-color), transparent);
+  border-radius: inherit;
+  opacity: 0;
+  animation: pulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.performance-indicator.good::after {
+  opacity: 0.3;
+  animation-duration: 2s;
+}
+
+.performance-indicator.warning::after {
+  background: linear-gradient(45deg, var(--warning-color), transparent);
+  opacity: 0.5;
+  animation-duration: 1s;
+}
+
+.performance-indicator.error::after {
+  background: linear-gradient(45deg, var(--error-color), transparent);
+  opacity: 0.7;
+  animation-duration: 0.5s;
+}

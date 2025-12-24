@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2019-09/schema",
+  "app_info": {
+    "name": "CSS Modernization Template",
+    "version": "1.0.0",
+    "created_at": "2025-08-18T10:00:00Z",
+    "description": "Modernize legacy CSS properties and values to current standards",
+    "author": "Multi Grep Replacer Team",
+    "tags": ["css", "modernization", "flexbox", "grid", "properties"]
+  },
+  "replacements": [
+    {
+      "id": "flexbox_old_to_new",
+      "from": "display: -webkit-box;",
+      "to": "display: flex;",
+      "enabled": true,
+      "description": "Replace old flexbox syntax with modern flexbox",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "webkit_flex_direction",
+      "from": "-webkit-box-orient: vertical;",
+      "to": "flex-direction: column;",
+      "enabled": true,
+      "description": "Replace webkit box orientation with flex-direction",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "webkit_justify_content",
+      "from": "-webkit-box-pack: center;",
+      "to": "justify-content: center;",
+      "enabled": true,
+      "description": "Replace webkit box pack with justify-content",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "webkit_align_items",
+      "from": "-webkit-box-align: center;",
+      "to": "align-items: center;",
+      "enabled": true,
+      "description": "Replace webkit box align with align-items",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "absolute_centering_modern",
+      "from": "position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);",
+      "to": "position: absolute; inset: 0; margin: auto;",
+      "enabled": true,
+      "description": "Modern CSS centering technique using inset",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "vendor_prefix_border_radius",
+      "from": "-webkit-border-radius:",
+      "to": "border-radius:",
+      "enabled": true,
+      "description": "Remove webkit prefix from border-radius (widely supported)",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "vendor_prefix_box_shadow",
+      "from": "-webkit-box-shadow:",
+      "to": "box-shadow:",
+      "enabled": true,
+      "description": "Remove webkit prefix from box-shadow (widely supported)",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "vendor_prefix_transition",
+      "from": "-webkit-transition:",
+      "to": "transition:",
+      "enabled": true,
+      "description": "Remove webkit prefix from transition (widely supported)",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "vendor_prefix_transform",
+      "from": "-webkit-transform:",
+      "to": "transform:",
+      "enabled": true,
+      "description": "Remove webkit prefix from transform (widely supported)",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "float_clearfix_to_flexbox",
+      "from": "float: left;",
+      "to": "/* Consider using flexbox instead of float */",
+      "enabled": false,
+      "description": "Flag float usage for potential flexbox conversion",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "display_table_to_flex",
+      "from": "display: table-cell;",
+      "to": "/* Consider using flexbox or grid instead */",
+      "enabled": false,
+      "description": "Flag table-cell display for modern layout alternatives",
+      "case_sensitive": true,
+      "whole_word": false
+    },
+    {
+      "id": "css_hack_removal",
+      "from": "*zoom: 1;",
+      "to": "/* Old IE hack removed - consider modern alternatives */",
+      "enabled": true,
+      "description": "Remove IE6/7 hasLayout hack",
+      "case_sensitive": true,
+      "whole_word": false
+    }
+  ],
+  "target_settings": {
+    "file_extensions": [".css", ".scss", ".sass", ".less", ".styl"],
+    "exclude_patterns": [
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "build/**",
+      "public/**",
+      "*.min.css",
+      "vendor/**",
+      "bower_components/**"
+    ],
+    "include_subdirectories": true,
+    "max_file_size": 10485760,
+    "encoding": "utf-8"
+  },
+  "replacement_settings": {
+    "case_sensitive": true,
+    "use_regex": false,
+    "backup_enabled": true,
+    "preserve_file_permissions": true,
+    "dry_run": false
+  },
+  "ui_settings": {
+    "theme": "auto",
+    "window": {
+      "width": 800,
+      "height": 700,
+      "resizable": true,
+      "center": true
+    },
+    "remember_last_folder": true,
+    "auto_save_config": false,
+    "show_file_count_preview": true,
+    "confirm_before_execution": true
+  },
+  "advanced_settings": {
+    "max_concurrent_files": 10,
+    "progress_update_interval": 100,
+    "log_level": "info",
+    "enable_crash_reporting": false
+  }
+}

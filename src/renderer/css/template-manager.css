@@ -1,0 +1,447 @@
+/**
+ * Multi Grep Replacer - Template Manager Styles
+ * テンプレート・設定管理UI専用スタイルシート
+ */
+
+/* テンプレート選択セクション */
+.template-section {
+  background: var(--background-secondary, #f8f9fa);
+  border: 1px solid var(--border-primary, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.template-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* テンプレート選択ドロップダウン */
+.template-select-container {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+#templateSelect {
+  width: 100%;
+  height: 44px;
+  padding: 0 40px 0 16px;
+  border: 2px solid var(--border-primary, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
+  background: var(--background-primary, #ffffff);
+  color: var(--text-primary, #1a202c);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+#templateSelect:hover {
+  border-color: var(--border-secondary, #cbd5e0);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.05);
+}
+
+#templateSelect:focus {
+  outline: none;
+  border-color: var(--border-focus, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* optgroup スタイル */
+#templateSelect optgroup {
+  font-weight: 600;
+  color: var(--text-secondary, #4a5568);
+  background: var(--background-tertiary, #f1f5f9);
+}
+
+#templateSelect option {
+  padding: 8px 12px;
+  background: var(--background-primary, #ffffff);
+  color: var(--text-primary, #1a202c);
+}
+
+/* クイックテンプレートボタン */
+.quick-templates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.quick-template-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--background-primary, #ffffff);
+  border: 1px solid var(--border-secondary, #cbd5e0);
+  border-radius: var(--radius-md, 8px);
+  color: var(--text-secondary, #4a5568);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quick-template-btn:hover {
+  background: var(--background-hover, #f7fafc);
+  border-color: var(--border-focus, #4f46e5);
+  color: var(--text-primary, #1a202c);
+  transform: translateY(-1px);
+}
+
+.quick-template-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* 最近の設定セクション */
+.recent-configs-section {
+  background: var(--background-secondary, #f8f9fa);
+  border: 1px solid var(--border-primary, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.recent-configs-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 最近の設定リスト */
+.recent-configs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.recent-config-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--background-primary, #ffffff);
+  border: 1px solid var(--border-primary, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
+  transition: all 0.2s ease;
+}
+
+.recent-config-item:hover {
+  border-color: var(--border-secondary, #cbd5e0);
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.1));
+}
+
+.recent-config-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.recent-config-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary, #1a202c);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-config-date {
+  font-size: 12px;
+  color: var(--text-tertiary, #a0aec0);
+  margin-bottom: 2px;
+}
+
+.recent-config-summary {
+  font-size: 12px;
+  color: var(--text-secondary, #4a5568);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.recent-config-load {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--background-tertiary, #f1f5f9);
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary, #4a5568);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recent-config-load:hover {
+  background: var(--border-focus, #4f46e5);
+  color: var(--text-inverse, #ffffff);
+  transform: scale(1.1);
+}
+
+.recent-config-load:active {
+  transform: scale(1.05);
+}
+
+/* 空の状態 */
+.recent-config-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-tertiary, #a0aec0);
+  font-size: 14px;
+}
+
+/* テンプレート作成モーダル */
+.template-create-modal {
+  width: 100%;
+  max-width: 500px;
+  padding: 24px;
+}
+
+.template-create-modal h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary, #1a202c);
+  margin-bottom: 20px;
+}
+
+.template-form-group {
+  margin-bottom: 16px;
+}
+
+.template-form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary, #4a5568);
+  margin-bottom: 6px;
+}
+
+.template-form-input,
+.template-form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-primary, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
+  background: var(--background-primary, #ffffff);
+  color: var(--text-primary, #1a202c);
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.template-form-input:focus,
+.template-form-textarea:focus {
+  outline: none;
+  border-color: var(--border-focus, #4f46e5);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.template-form-textarea {
+  height: 80px;
+  resize: vertical;
+  min-height: 60px;
+  max-height: 120px;
+}
+
+/* テンプレート作成ボタン */
+.create-template-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--background-primary, #ffffff);
+  border: 1px dashed var(--border-secondary, #cbd5e0);
+  border-radius: var(--radius-md, 8px);
+  color: var(--text-secondary, #4a5568);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.create-template-button:hover {
+  background: var(--background-hover, #f7fafc);
+  border-color: var(--border-focus, #4f46e5);
+  color: var(--border-focus, #4f46e5);
+}
+
+/* テンプレートカテゴリバッジ */
+.template-category-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.template-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--background-tertiary, #f1f5f9);
+  border-radius: var(--radius-sm, 6px);
+  color: var(--text-secondary, #4a5568);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.template-category-badge:hover {
+  background: var(--border-focus, #4f46e5);
+  color: var(--text-inverse, #ffffff);
+}
+
+.template-category-badge.active {
+  background: var(--border-focus, #4f46e5);
+  color: var(--text-inverse, #ffffff);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .template-section,
+  .recent-configs-section {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .quick-templates {
+    gap: 6px;
+  }
+
+  .quick-template-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .recent-config-item {
+    padding: 10px 12px;
+  }
+
+  .recent-config-name {
+    font-size: 13px;
+  }
+
+  .recent-config-summary,
+  .recent-config-date {
+    font-size: 11px;
+  }
+}
+
+/* ダークモード対応 */
+.theme-dark .template-section,
+.theme-dark .recent-configs-section {
+  background: var(--background-secondary-dark, #2d3748);
+  border-color: var(--border-primary-dark, #4a5568);
+}
+
+.theme-dark #templateSelect,
+.theme-dark .recent-config-item,
+.theme-dark .quick-template-btn,
+.theme-dark .template-form-input,
+.theme-dark .template-form-textarea {
+  background: var(--background-primary-dark, #1a202c);
+  border-color: var(--border-primary-dark, #4a5568);
+  color: var(--text-primary-dark, #f7fafc);
+}
+
+.theme-dark .template-category-badge {
+  background: var(--background-tertiary-dark, #4a5568);
+  color: var(--text-secondary-dark, #e2e8f0);
+}
+
+/* アニメーション強化 */
+.template-fade-in {
+  animation: templateFadeIn 0.3s ease-out;
+}
+
+.template-slide-up {
+  animation: templateSlideUp 0.4s ease-out;
+}
+
+@keyframes templateFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes templateSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 成功・エラー通知用スタイル（TemplateManager用） */
+.template-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md, 8px);
+  box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.15));
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  max-width: 350px;
+  word-wrap: break-word;
+  animation: slideInRight 0.3s ease-out;
+}
+
+.template-notification.success {
+  background: #10b981;
+  color: white;
+}
+
+.template-notification.error {
+  background: #ef4444;
+  color: white;
+}
+
+.template-notification.warning {
+  background: #f59e0b;
+  color: white;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
