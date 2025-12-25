@@ -92,8 +92,8 @@
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
-        {"target": "dmg", "arch": ["arm64", "x64"]},
-        {"target": "zip", "arch": ["arm64", "x64"]}
+        {"target": "dmg", "arch": ["universal"]},
+        {"target": "zip", "arch": ["universal"]}
       ],
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
@@ -102,7 +102,8 @@
     },
     "dmg": {
       "title": "${productName} ${version}",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#ffffff",
+      "artifactName": "MultiGrepReplacer-${version}.${ext}"
     },
     "win": {
       "target": [
@@ -118,7 +119,8 @@
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "artifactName": "MultiGrepReplacer-Setup-${version}.${ext}"
     },
     "linux": {
       "target": [

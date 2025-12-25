@@ -8,8 +8,8 @@
 
 [![Release](https://img.shields.io/github/v/release/sarap422/electron-multi-grep-replacer)](https://github.com/sarap422/electron-multi-grep-replacer/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-macOS-lightgrey.svg)]()
-[![Electron](https://img.shields.io/badge/electron-25.9.8-blue)]()
+[![Platform](https://img.shields.io/badge/platform-macOS%20|%20Windows-lightgrey.svg)]()
+[![Electron](https://img.shields.io/badge/electron-25.8.4-blue)]()
 
 </div>
 
@@ -22,7 +22,7 @@ Multi Grep Replacer is a modern, high-performance desktop application that allow
 - **Blazing Fast**: Process 1000+ files in under 30 seconds
 - **Ultra-Responsive UI**: Button clicks respond in under 100ms
 - **Memory Efficient**: Uses only 10MB baseline, scales intelligently
-- **Cross-Platform**: Native experience on macOS, Windows, and Linux
+- **Cross-Platform**: Native experience on macOS, Windows
 - **Developer-Friendly**: Modern architecture with comprehensive APIs
 
 ## ✨ Features
@@ -57,15 +57,13 @@ Multi Grep Replacer is a modern, high-performance desktop application that allow
 
 | Platform | Download | Size | Architecture |
 |----------|----------|------|-------------|
-| **macOS** | [MultiGrepReplacer-1.0.0.dmg](https://github.com/sarap422/multi-grep-replacer/releases/download/v1.0.0/MultiGrepReplacer-1.0.0.dmg) | ~150MB | Universal (Intel + Apple Silicon) |
-| **Windows** | <strike>MultiGrepReplacer-Setup-1.0.0.exe</strike> | - | x64 |
-| **Linux** | <strike>MultiGrepReplacer-1.0.0.AppImage</strike>  | - | x64 |
+| **macOS** | [MultiGrepReplacer-1.0.0.dmg](https://github.com/sarap422/electron-multi-grep-replacer/releases/download/v1.0.0/MultiGrepReplacer-1.0.0.dmg) | ~140MB | Universal (Intel + Apple Silicon) |
+| **Windows** | [MultiGrepReplacer-Setup-1.0.0.exe](https://github.com/sarap422/electron-multi-grep-replacer/releases/download/v1.0.0/MultiGrepReplacer-Setup-1.0.0.exe) | ~67MB | x64 |
 
 ### System Requirements
 
 - **macOS**: 10.14 or later
 - **Windows**: 10 or later
-- **Linux**: Ubuntu 18.04, Debian 10, Fedora 32, or equivalent
 - **Memory**: 2GB RAM minimum (4GB recommended)
 - **Storage**: 200MB available space
 
@@ -84,11 +82,6 @@ Multi Grep Replacer is a modern, high-performance desktop application that allow
 2. Run the installer as Administrator
 3. Follow the installation wizard
 4. Launch from Start Menu
-
-#### Linux
-1. Download the `.AppImage` file
-2. Make it executable: `chmod +x MultiGrepReplacer-*.AppImage`
-3. Run: `./MultiGrepReplacer-*.AppImage`
 
 ### First Use
 
@@ -220,7 +213,7 @@ Save complex replacement sets as reusable configurations:
 ### Development
 
 1. **Fork** the repository
-2. **Clone** your fork: `git clone https://github.com/sarap422/multi-grep-replacer.git`
+2. **Clone** your fork: `git clone https://github.com/sarap422/electron-multi-grep-replacer.git`
 3. **Install** dependencies: `npm install`
 4. **Start** development: `npm start`
 5. **Make** your changes
@@ -231,8 +224,8 @@ Save complex replacement sets as reusable configurations:
 
 ```bash
 # Clone and setup
-git clone https://github.com/sarap422/multi-grep-replacer.git
-cd multi-grep-replacer
+git clone https://github.com/sarap422/electron-multi-grep-replacer.git
+cd electron-multi-grep-replacer
 npm install
 
 # Start development server
@@ -256,5 +249,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ### Getting Help
 
 - 📖 **Documentation**: Check our comprehensive [guides](docs/)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/sarap422/multi-grep-replacer/issues)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/sarap422/electron-multi-grep-replacer/issues)
 
