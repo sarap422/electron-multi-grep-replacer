@@ -1,0 +1,698 @@
+/**
+ * execution-ui.css - 実行・進捗・結果表示UI専用スタイル
+ * Task 3.3: 実行・進捗・結果表示UI実装
+ * 
+ * 主な内容：
+ * - 実行ボタンスタイル・アニメーション
+ * - 進捗モーダルスタイル
+ * - 結果表示モーダルスタイル
+ * - 確認ダイアログスタイル
+ * - トースト通知スタイル
+ */
+
+/* =============================================================================
+   実行ボタン - 強化されたスタイル・アニメーション
+   ============================================================================= */
+
+.execute-button {
+  background: linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%);
+  color: white;
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 14px 32px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+  min-width: 200px;
+}
+
+.execute-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.4);
+}
+
+.execute-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.execute-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.execute-button.executing {
+  background: linear-gradient(135deg, var(--color-secondary) 0%, #64748b 100%);
+  animation: executingPulse 2s ease-in-out infinite;
+}
+
+.execute-button.executing .button-icon {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes executingPulse {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 実行ボタンのローディングエフェクト */
+.execute-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.execute-button.executing::before {
+  left: 100%;
+}
+
+/* =============================================================================
+   進捗モーダル - 詳細スタイル
+   ============================================================================= */
+
+.progress-modal {
+  min-width: 500px;
+  max-width: 600px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-primary);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.progress-modal .modal-title {
+  font-size: 1.4em;
+  margin-bottom: 24px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+}
+
+.progress-modal .progress-icon {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-6px);
+  }
+  60% {
+    transform: translateY(-3px);
+  }
+}
+
+/* 進捗バー */
+.progress-container {
+  margin-bottom: 20px;
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  height: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #6366f1 50%, var(--color-primary) 100%);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 進捗バーのアニメーション */
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progressShimmer 2s ease-in-out infinite;
+}
+
+@keyframes progressShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* 現在処理中ファイル */
+.current-file {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 20px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.current-file .file-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.current-file #currentFile {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+/* 進捗統計 */
+.progress-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.stat-item .stat-icon {
+  font-size: 16px;
+}
+
+.stat-item span:last-child {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* 進捗モーダルのアクションボタン */
+.progress-modal .modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.progress-modal .modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  min-width: 100px;
+}
+
+.progress-modal .secondary-button {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+}
+
+.progress-modal .danger-button {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+}
+
+.progress-modal .modal-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.progress-modal .modal-actions button:active {
+  transform: translateY(0);
+}
+
+/* =============================================================================
+   結果モーダル - 詳細スタイル
+   ============================================================================= */
+
+.result-modal {
+  min-width: 600px;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-primary);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.result-modal .modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.result-modal .modal-close:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.result-modal .modal-title {
+  font-size: 1.5em;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  padding-right: 40px; /* closeボタン分のスペース */
+}
+
+.result-modal .success-icon {
+  animation: checkmark 0.6s ease-in-out;
+}
+
+.result-modal .warning-icon {
+  animation: warning 1s ease-in-out;
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0) rotate(45deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(45deg);
+  }
+  100% {
+    transform: scale(1) rotate(45deg);
+  }
+}
+
+@keyframes warning {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* 結果サマリー */
+.result-summary,
+.result-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.result-summary span:last-child,
+.result-time span:last-child {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+/* 結果詳細 */
+.result-details {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  margin: 24px 0;
+  background: var(--bg-secondary);
+}
+
+.result-list {
+  padding: 0;
+}
+
+.result-file {
+  border-bottom: 1px solid var(--border-secondary);
+  padding: 16px;
+}
+
+.result-file:last-child {
+  border-bottom: none;
+}
+
+.file-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.file-header .file-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.file-header .file-path {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+  flex-grow: 1;
+  word-break: break-all;
+}
+
+.file-header .change-count {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  background: var(--color-primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.file-details {
+  margin-left: 24px;
+}
+
+.change-detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.change-from {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.change-arrow {
+  color: var(--text-secondary);
+  font-weight: 700;
+}
+
+.change-to {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-weight: 600;
+}
+
+.occurrence-count {
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* 結果モーダルのアクションボタン */
+.result-modal .modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  flex-wrap: wrap;
+}
+
+.result-modal .modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  min-width: 120px;
+}
+
+.result-modal .modal-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* =============================================================================
+   モーダル共通 - アニメーション・トランジション
+   ============================================================================= */
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+}
+
+.modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal.show .modal-content {
+  transform: scale(1) translateY(0);
+}
+
+.modal-content {
+  transform: scale(0.9) translateY(-20px);
+  transition: all 0.3s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* スクロールバーのカスタマイズ */
+.result-details::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.result-details::-webkit-scrollbar-track,
+.modal-content::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+.result-details::-webkit-scrollbar-thumb,
+.modal-content::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 4px;
+}
+
+.result-details::-webkit-scrollbar-thumb:hover,
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* =============================================================================
+   レスポンシブ対応
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  .progress-modal,
+  .result-modal {
+    min-width: auto;
+    max-width: 90vw;
+    margin: 20px;
+  }
+
+  .progress-stats {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .result-modal .modal-actions {
+    justify-content: center;
+  }
+
+  .execute-button {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .progress-modal,
+  .result-modal {
+    padding: 20px;
+    margin: 10px;
+    border-radius: 12px;
+  }
+
+  .file-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .change-detail {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    margin-left: 0;
+  }
+}
+
+/* =============================================================================
+   アクセシビリティ対応
+   ============================================================================= */
+
+/* フォーカス表示の強化 */
+.execute-button:focus,
+.progress-modal button:focus,
+.result-modal button:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  .progress-bar {
+    background: var(--color-primary);
+  }
+
+  .change-from,
+  .change-to {
+    border: 1px solid currentColor;
+  }
+}
+
+/* モーション削減対応 */
+@media (prefers-reduced-motion: reduce) {
+  .execute-button,
+  .progress-bar,
+  .modal,
+  .modal-content,
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* =============================================================================
+   印刷対応
+   ============================================================================= */
+
+@media print {
+  .modal {
+    position: static !important;
+    background: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .modal-content {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+    transform: none !important;
+  }
+
+  .progress-modal {
+    display: none !important;
+  }
+
+  .result-modal .modal-actions {
+    display: none !important;
+  }
+}
+
+/* =============================================================================
+   ダークモード対応
+   ============================================================================= */
+
+[data-theme='dark'] .execute-button {
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.2);
+}
+
+[data-theme='dark'] .execute-button:hover:not(:disabled) {
+  box-shadow: 0 6px 24px rgba(99, 102, 241, 0.3);
+}
+
+[data-theme='dark'] .modal {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+[data-theme='dark'] .progress-modal,
+[data-theme='dark'] .result-modal {
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+}

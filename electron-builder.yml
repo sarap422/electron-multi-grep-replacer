@@ -1,0 +1,49 @@
+appId: com.multigrepreplacer.app
+productName: Multi Grep Replacer
+copyright: Copyright © 2025 Multi Grep Replacer Team
+
+directories:
+  output: dist
+  buildResources: build
+
+files:
+  - src/**/*
+  - config/**/*
+  - package.json
+  - '!tests/**/*'
+  - '!coverage/**/*'
+  - '!debug/**/*'
+  - '!logs/**/*'
+  - '!docs/**/*'
+  - '!scripts/**/*'
+  - '!*.md'
+  - '!.gitignore'
+  - '!.eslintrc*'
+  - '!jest.config.js'
+
+extraResources:
+  - from: config/
+    to: config/
+    filter:
+      - default.json
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  publisherName: Multi Grep Replacer Team
+  sign: null
+  signAndEditExecutable: false
+  verifyUpdateCodeSignature: false
+
+nsis:
+  oneClick: false
+  allowElevation: true
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
+compression: maximum
+removePackageScripts: true
+nodeGypRebuild: false

@@ -1,0 +1,254 @@
+/* Multi Grep Replacer - Themes Stylesheet */
+
+/* ダークテーマ CSS変数 */
+body.theme-dark {
+  --background-primary: #1e1e1e;
+  --background-secondary: #2d2d2d;
+  --background-tertiary: #3a3a3a;
+  --background-accent: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+  --text-primary: #ffffff;
+  --text-secondary: #d1d5db;
+  --text-tertiary: #9ca3af;
+  --text-inverse: #1e1e1e;
+
+  --border-primary: #404040;
+  --border-secondary: #525252;
+  --border-focus: #6366f1;
+
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #3b82f6;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+}
+
+/* ライトテーマ（デフォルト） - main.cssで既に定義済み */
+body.theme-light {
+  --background-primary: #ffffff;
+  --background-secondary: #f8fafc;
+  --background-tertiary: #f1f5f9;
+  --background-accent: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-tertiary: #64748b;
+  --text-inverse: #ffffff;
+
+  --border-primary: #e2e8f0;
+  --border-secondary: #cbd5e1;
+  --border-focus: #4f46e5;
+
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --info-color: #3b82f6;
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* システムテーマ自動検出 */
+body.theme-auto {
+  /* システムがダークモードの場合 */
+  @media (prefers-color-scheme: dark) {
+    --background-primary: #1e1e1e;
+    --background-secondary: #2d2d2d;
+    --background-tertiary: #3a3a3a;
+    --background-accent: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+
+    --text-primary: #ffffff;
+    --text-secondary: #d1d5db;
+    --text-tertiary: #9ca3af;
+    --text-inverse: #1e1e1e;
+
+    --border-primary: #404040;
+    --border-secondary: #525252;
+    --border-focus: #6366f1;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.2);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.4);
+  }
+
+  /* システムがライトモードの場合（デフォルト値をそのまま使用） */
+  @media (prefers-color-scheme: light) {
+    --background-primary: #ffffff;
+    --background-secondary: #f8fafc;
+    --background-tertiary: #f1f5f9;
+    --background-accent: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-tertiary: #64748b;
+    --text-inverse: #ffffff;
+
+    --border-primary: #e2e8f0;
+    --border-secondary: #cbd5e1;
+    --border-focus: #4f46e5;
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  }
+}
+
+/* テーマ切り替えアニメーション */
+body {
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* テーマ切り替えボタンのアイコン */
+.theme-light .theme-icon::before {
+  content: '🌙';
+}
+
+.theme-dark .theme-icon::before {
+  content: '☀️';
+}
+
+.theme-auto .theme-icon::before {
+  content: '🌓';
+}
+
+/* ダークテーマ固有のスタイル調整 */
+body.theme-dark {
+  /* スクロールバー */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-secondary) var(--background-secondary);
+}
+
+body.theme-dark::-webkit-scrollbar {
+  width: 8px;
+}
+
+body.theme-dark::-webkit-scrollbar-track {
+  background: var(--background-secondary);
+}
+
+body.theme-dark::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 4px;
+}
+
+body.theme-dark::-webkit-scrollbar-thumb:hover {
+  background: var(--border-primary);
+}
+
+/* ダークテーマでの選択テキスト */
+body.theme-dark ::selection {
+  background: var(--border-focus);
+  color: var(--text-inverse);
+}
+
+/* ダークテーマでのフォーカスリング */
+body.theme-dark *:focus {
+  outline-color: var(--border-focus);
+}
+
+/* ダークテーマでのプレースホルダー */
+body.theme-dark input::placeholder,
+body.theme-dark textarea::placeholder {
+  color: var(--text-tertiary);
+  opacity: 0.7;
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  body.theme-dark {
+    --background-primary: #000000;
+    --background-secondary: #1a1a1a;
+    --text-primary: #ffffff;
+    --border-primary: #666666;
+    --border-secondary: #888888;
+  }
+
+  body.theme-light {
+    --background-primary: #ffffff;
+    --text-primary: #000000;
+    --border-primary: #666666;
+    --border-secondary: #333333;
+  }
+}
+
+/* 低輝度モード対応 */
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 印刷時の調整 */
+@media print {
+  body {
+    --background-primary: white;
+    --background-secondary: white;
+    --text-primary: black;
+    --text-secondary: #333333;
+    --border-primary: #cccccc;
+  }
+
+  .app-header {
+    background: white !important;
+    color: black !important;
+  }
+
+  .icon-button,
+  .primary-button,
+  .secondary-button {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+  }
+}
+
+/* テーマ切り替え視覚効果 */
+.theme-switching {
+  pointer-events: none;
+  transition: filter var(--transition-slow), transform var(--transition-slow);
+}
+
+.theme-switching * {
+  transition: background-color var(--transition-slow), color var(--transition-slow), border-color var(--transition-slow);
+}
+
+/* Windows/Linux系でのダークテーマ調整 */
+@supports (-webkit-appearance: none) {
+  /* Webkit系ブラウザ（Chrome、Safari等）での調整 */
+  body.theme-dark input[type='checkbox'] {
+    filter: invert(1) hue-rotate(180deg);
+  }
+
+  body.theme-dark select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  }
+}
+
+/* Firefox固有の調整 */
+@-moz-document url-prefix() {
+  body.theme-dark select {
+    background-image: none;
+    -moz-appearance: none;
+  }
+}
+
+/* Edge固有の調整 */
+@supports (-ms-ime-align: auto) {
+  body.theme-dark {
+    /* Edge特有のスタイル調整があれば記述 */
+  }
+}
