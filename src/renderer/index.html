@@ -47,34 +47,48 @@
 
       <!-- メインコンテンツ -->
       <main class="main-content">
-        <!-- ターゲットフォルダ選択 -->
+        <!-- ターゲットフォルダ選択（複数対応） -->
         <section class="target-folder-section" aria-labelledby="folder-heading">
           <h2 id="folder-heading" class="section-title">
             <span class="section-icon">📁</span>
-            Target Folder
+            Target Folders
           </h2>
-          <div class="folder-input-group">
-            <div class="folder-input-wrapper" id="folderDropZone">
-              <input
-                type="text"
-                id="targetFolder"
-                class="folder-input"
-                placeholder="/path/to/project/folder"
-                aria-label="Target folder path"
-                title="Enter folder path or use Browse button"
-              />
-              <div class="drop-overlay">
-                <span class="drop-icon">📂</span>
-                <span class="drop-text">Drop folder here</span>
+          <div class="folders-container" id="foldersContainer">
+            <div class="folders-list" id="foldersList">
+              <!-- 初期フォルダ -->
+              <div class="folder-item" data-folder-id="folder-1">
+                <div class="folder-input-group">
+                  <div class="folder-input-wrapper" id="folderDropZone-1">
+                    <input
+                      type="text"
+                      class="folder-input folder-path-input"
+                      placeholder="/path/to/project/folder"
+                      aria-label="Target folder path"
+                      title="Enter folder path or use Browse button"
+                    />
+                    <div class="drop-overlay">
+                      <span class="drop-icon">📂</span>
+                      <span class="drop-text">Drop folder here</span>
+                    </div>
+                  </div>
+                  <button class="primary-button browse-button folder-browse-btn" title="Browse...">
+                    <span class="button-icon">📂</span>
+                    Browse...
+                  </button>
+                  <button class="icon-button folder-delete" title="フォルダを削除" aria-label="Delete folder">
+                    <span>🗑️</span>
+                  </button>
+                </div>
+                <div class="folder-info">
+                  <span class="info-text folder-status">No folder selected</span>
+                </div>
               </div>
             </div>
-            <button id="browseButton" class="primary-button browse-button">
-              <span class="button-icon">📂</span>
-              Browse...
+
+            <button id="addFolderButton" class="add-folder-button">
+              <span class="button-icon">➕</span>
+              Add new folder
             </button>
-          </div>
-          <div class="folder-info">
-            <span class="info-text" id="folderStatus">No folder selected</span>
           </div>
         </section>
 

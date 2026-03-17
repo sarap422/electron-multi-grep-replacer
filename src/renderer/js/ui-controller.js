@@ -9,9 +9,11 @@ class UIController {
     this.currentConfig = this.getDefaultConfig();
     this.replacementRules = [];
     this.isProcessing = false;
-    this.selectedFolder = '';
+    this.selectedFolders = []; // 複数フォルダ対応
+    this.selectedFolder = ''; // 後方互換性（最初のフォルダを返す）
     this.foundFiles = [];
     this.ruleIdCounter = 1;
+    this.folderIdCounter = 1;
 
     // UI応答性監視
     this.uiResponseTarget = 100; // ms
@@ -56,6 +58,9 @@ class UIController {
 
     // 初期ルール作成
     this.initializeDefaultRules();
+
+    // 初期フォルダ読み込み
+    this.initializeDefaultFolders();
 
     // ElectronAPI確認
     this.verifyElectronAPI();
@@ -122,30 +127,10 @@ class UIController {
     // キーボードショートカット設定
     this.setupKeyboardShortcuts();
 
-    // フォルダ選択
-    const browseButton = document.getElementById('browseButton');
-    if (browseButton) {
-      browseButton.addEventListener('click', () => this.handleFolderSelect());
-    }
-
-    // ドラッグ&ドロップ
-    const folderDropZone = document.getElementById('folderDropZone');
-    if (folderDropZone) {
-      this.setupDragAndDrop(folderDropZone);
-    }
-
-    // Target Folder入力欄の変更監視
-    const targetFolderInput = document.getElementById('targetFolder');
-    if (targetFolderInput) {
-      // フォーカス離脱時にパスを検証・設定
-      targetFolderInput.addEventListener('blur', () => this.handleFolderPathInput());
-      // Enter キー押下時にパスを検証・設定
-      targetFolderInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          this.handleFolderPathInput();
-        }
-      });
+    // フォルダ追加ボタン
+    const addFolderButton = document.getElementById('addFolderButton');
+    if (addFolderButton) {
+      addFolderButton.addEventListener('click', () => this.handleAddFolder());
     }
 
     // ファイル拡張子入力
@@ -491,76 +476,232 @@ class UIController {
     }
   }
 
+  // ============================================
+  // 複数フォルダ管理
+  // ============================================
+
   /**
-   * 手動入力されたフォルダパス処理
+   * 初期フォルダの読み込み（HTMLに定義済みのフォルダアイテム）
    */
-  async handleFolderPathInput() {
-    const targetFolderInput = document.getElementById('targetFolder');
-    if (!targetFolderInput) {
-      return;
+  initializeDefaultFolders() {
+    const existingItems = document.querySelectorAll('.folder-item');
+    existingItems.forEach(item => {
+      const { folderId } = item.dataset;
+      const pathInput = item.querySelector('.folder-path-input');
+      const folder = {
+        id: folderId,
+        path: pathInput?.value?.trim() || '',
+      };
+      this.selectedFolders.push(folder);
+      this.setupFolderItemListeners(item, folder);
+    });
+    this.folderIdCounter = this.selectedFolders.length + 1;
+    this.syncSelectedFolder();
+  }
+
+  /**
+   * フォルダアイテムのイベントリスナー設定
+   */
+  setupFolderItemListeners(folderElement, folder) {
+    const browseBtn = folderElement.querySelector('.folder-browse-btn');
+    const deleteBtn = folderElement.querySelector('.folder-delete');
+    const pathInput = folderElement.querySelector('.folder-path-input');
+    const dropZone = folderElement.querySelector('.folder-input-wrapper');
+
+    if (browseBtn) {
+      browseBtn.addEventListener('click', () => this.handleFolderBrowse(folder.id));
     }
 
-    const inputPath = targetFolderInput.value.trim();
-
-    // 空の場合は何もしない
-    if (!inputPath) {
-      this.selectedFolder = '';
-      this.updateFolderDisplay('');
-      await this.updatePreview();
-      return;
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => this.handleDeleteFolder(folder.id));
     }
 
-    const startTime = performance.now();
+    if (pathInput) {
+      pathInput.addEventListener('blur', () => this.handleFolderPathInput(folder.id));
+      pathInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.handleFolderPathInput(folder.id);
+        }
+      });
+    }
 
-    try {
-      console.log(`📂 Validating manual folder path: ${inputPath}`);
-
-      // パスの存在確認（IPCを通じてメインプロセスで確認）
-      const result = await window.electronAPI.validateFolderPath(inputPath);
-      const responseTime = performance.now() - startTime;
-
-      // パフォーマンス監視
-      if (
-        window.performanceMonitor &&
-        typeof window.performanceMonitor.recordResponse === 'function'
-      ) {
-        window.performanceMonitor.recordResponse('folderPathInput', responseTime);
-      }
-
-      if (result.success && result.exists) {
-        this.selectedFolder = inputPath;
-        this.updateFolderDisplay(inputPath);
-        await this.updatePreview();
-        console.log(`✅ Manual folder path validated: ${inputPath}`);
-      } else {
-        // パスが存在しない場合の処理
-        this.showError(
-          'フォルダパス無効',
-          `指定されたパス "${inputPath}" は存在しないか、アクセスできません`
-        );
-        // 入力欄を元の値に戻す
-        targetFolderInput.value = this.selectedFolder || '';
-      }
-    } catch (error) {
-      console.error('❌ Folder path validation failed:', error);
-      this.showError(
-        'パス検証失敗',
-        `フォルダパスの確認中にエラーが発生しました: ${error.message}`
-      );
-      // 入力欄を元の値に戻す
-      targetFolderInput.value = this.selectedFolder || '';
+    if (dropZone) {
+      this.setupFolderDropZone(dropZone, folder.id);
     }
   }
 
   /**
-   * フォルダ選択処理
+   * フォルダアイテム用ドラッグ&ドロップ設定
    */
-  async handleFolderSelect() {
+  setupFolderDropZone(dropZone, folderId) {
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add('drag-active');
+      const overlay = dropZone.querySelector('.drop-overlay');
+      if (overlay) {
+        overlay.classList.add('active');
+      }
+    });
+
+    dropZone.addEventListener('dragleave', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove('drag-active');
+      const overlay = dropZone.querySelector('.drop-overlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+      }
+    });
+
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove('drag-active');
+      const overlay = dropZone.querySelector('.drop-overlay');
+      if (overlay) {
+        overlay.classList.remove('active');
+      }
+
+      const { files } = e.dataTransfer;
+      if (files.length > 0) {
+        const droppedPath = files[0].path;
+        this.handleFolderDrop(folderId, droppedPath);
+      }
+    });
+  }
+
+  /**
+   * フォルダ追加
+   */
+  handleAddFolder() {
+    const startTime = performance.now();
+    const folderId = `folder-${++this.folderIdCounter}`;
+    const folder = { id: folderId, path: '' };
+    this.selectedFolders.push(folder);
+
+    // DOM要素作成
+    const folderElement = this.createFolderElement(folder);
+    const foldersList = document.getElementById('foldersList');
+    if (foldersList) {
+      foldersList.appendChild(folderElement);
+      // アニメーション
+      requestAnimationFrame(() => folderElement.classList.add('folder-appear'));
+    }
+
+    this.syncSelectedFolder();
+
+    const responseTime = performance.now() - startTime;
+    console.log(`📁 Folder added: ${folderId} (${responseTime.toFixed(1)}ms)`);
+  }
+
+  /**
+   * フォルダアイテムのDOM要素作成（安全なDOM操作）
+   */
+  createFolderElement(folder) {
+    const div = document.createElement('div');
+    div.className = 'folder-item';
+    div.dataset.folderId = folder.id;
+
+    // folder-input-group
+    const inputGroup = document.createElement('div');
+    inputGroup.className = 'folder-input-group';
+
+    // folder-input-wrapper
+    const inputWrapper = document.createElement('div');
+    inputWrapper.className = 'folder-input-wrapper';
+    inputWrapper.id = `folderDropZone-${folder.id}`;
+
+    const pathInput = document.createElement('input');
+    pathInput.type = 'text';
+    pathInput.className = 'folder-input folder-path-input';
+    pathInput.placeholder = '/path/to/project/folder';
+    pathInput.setAttribute('aria-label', 'Target folder path');
+    pathInput.title = 'Enter folder path or use Browse button';
+    pathInput.value = folder.path || '';
+
+    const dropOverlay = document.createElement('div');
+    dropOverlay.className = 'drop-overlay';
+    const dropIcon = document.createElement('span');
+    dropIcon.className = 'drop-icon';
+    dropIcon.textContent = '\uD83D\uDCC2';
+    const dropText = document.createElement('span');
+    dropText.className = 'drop-text';
+    dropText.textContent = 'Drop folder here';
+    dropOverlay.appendChild(dropIcon);
+    dropOverlay.appendChild(dropText);
+
+    inputWrapper.appendChild(pathInput);
+    inputWrapper.appendChild(dropOverlay);
+
+    // Browse button
+    const browseBtn = document.createElement('button');
+    browseBtn.className = 'primary-button browse-button folder-browse-btn';
+    browseBtn.title = 'Browse...';
+    const browseIcon = document.createElement('span');
+    browseIcon.className = 'button-icon';
+    browseIcon.textContent = '\uD83D\uDCC2';
+    browseBtn.appendChild(browseIcon);
+    browseBtn.appendChild(document.createTextNode(' Browse...'));
+
+    // Delete button
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'icon-button folder-delete';
+    deleteBtn.title = 'フォルダを削除';
+    deleteBtn.setAttribute('aria-label', 'Delete folder');
+    const deleteIcon = document.createElement('span');
+    deleteIcon.textContent = '\uD83D\uDDD1\uFE0F';
+    deleteBtn.appendChild(deleteIcon);
+
+    inputGroup.appendChild(inputWrapper);
+    inputGroup.appendChild(browseBtn);
+    inputGroup.appendChild(deleteBtn);
+
+    // folder-info
+    const folderInfo = document.createElement('div');
+    folderInfo.className = 'folder-info';
+    const statusText = document.createElement('span');
+    statusText.className = 'info-text folder-status';
+    statusText.textContent = folder.path ? `Selected: ${folder.path}` : 'No folder selected';
+    folderInfo.appendChild(statusText);
+
+    div.appendChild(inputGroup);
+    div.appendChild(folderInfo);
+
+    this.setupFolderItemListeners(div, folder);
+    return div;
+  }
+
+  /**
+   * フォルダ削除
+   */
+  handleDeleteFolder(folderId) {
+    // 最低1つは残す
+    if (this.selectedFolders.length <= 1) {
+      return;
+    }
+
+    const folderElement = document.querySelector(`.folder-item[data-folder-id="${folderId}"]`);
+    if (folderElement) {
+      folderElement.classList.add('folder-removing');
+      setTimeout(() => {
+        folderElement.remove();
+        this.selectedFolders = this.selectedFolders.filter(f => f.id !== folderId);
+        this.syncSelectedFolder();
+        this.updatePreview();
+      }, 300);
+    }
+  }
+
+  /**
+   * フォルダBrowseボタン処理
+   */
+  async handleFolderBrowse(folderId) {
     const startTime = performance.now();
 
     try {
-      console.log('📂 Opening folder selection dialog...');
-
+      console.log(`📂 Opening folder selection dialog for ${folderId}...`);
       const result = await window.electronAPI.selectFolder();
       const responseTime = performance.now() - startTime;
 
@@ -572,11 +713,8 @@ class UIController {
       }
 
       if (result.success && result.folderPath) {
-        this.selectedFolder = result.folderPath;
-        this.updateFolderDisplay(result.folderPath);
-        await this.updatePreview();
-
-        console.log(`📂 Folder selected: ${result.folderPath}`);
+        this.updateFolderPath(folderId, result.folderPath);
+        console.log(`📂 Folder selected for ${folderId}: ${result.folderPath}`);
       } else if (result.cancelled) {
         console.log('📂 Folder selection cancelled');
       } else {
@@ -589,29 +727,149 @@ class UIController {
   }
 
   /**
-   * フォルダドロップ処理
+   * 手動入力されたフォルダパス処理
    */
-  async handleFolderDrop(folderPath) {
-    console.log(`📂 Folder dropped: ${folderPath}`);
-    this.selectedFolder = folderPath;
-    this.updateFolderDisplay(folderPath);
-    await this.updatePreview();
+  async handleFolderPathInput(folderId) {
+    const folderElement = document.querySelector(`.folder-item[data-folder-id="${folderId}"]`);
+    if (!folderElement) {
+      return;
+    }
+
+    const pathInput = folderElement.querySelector('.folder-path-input');
+    if (!pathInput) {
+      return;
+    }
+
+    const inputPath = pathInput.value.trim();
+
+    if (!inputPath) {
+      this.updateFolderPath(folderId, '');
+      return;
+    }
+
+    const startTime = performance.now();
+
+    try {
+      const result = await window.electronAPI.validateFolderPath(inputPath);
+      const responseTime = performance.now() - startTime;
+
+      if (
+        window.performanceMonitor &&
+        typeof window.performanceMonitor.recordResponse === 'function'
+      ) {
+        window.performanceMonitor.recordResponse('folderPathInput', responseTime);
+      }
+
+      if (result.success && result.exists) {
+        this.updateFolderPath(folderId, inputPath);
+        console.log(`✅ Manual folder path validated: ${inputPath}`);
+      } else {
+        this.showError(
+          'フォルダパス無効',
+          `指定されたパス "${inputPath}" は存在しないか、アクセスできません`
+        );
+        const folder = this.selectedFolders.find(f => f.id === folderId);
+        pathInput.value = folder?.path || '';
+      }
+    } catch (error) {
+      console.error('❌ Folder path validation failed:', error);
+      const folder = this.selectedFolders.find(f => f.id === folderId);
+      pathInput.value = folder?.path || '';
+    }
   }
 
   /**
-   * フォルダ表示更新
+   * フォルダドロップ処理
+   */
+  async handleFolderDrop(folderId, folderPath) {
+    console.log(`📂 Folder dropped on ${folderId}: ${folderPath}`);
+    this.updateFolderPath(folderId, folderPath);
+  }
+
+  /**
+   * フォルダパス更新（共通）
+   */
+  updateFolderPath(folderId, folderPath) {
+    const folder = this.selectedFolders.find(f => f.id === folderId);
+    if (folder) {
+      folder.path = folderPath;
+    }
+
+    const folderElement = document.querySelector(`.folder-item[data-folder-id="${folderId}"]`);
+    if (folderElement) {
+      const pathInput = folderElement.querySelector('.folder-path-input');
+      const statusText = folderElement.querySelector('.folder-status');
+      if (pathInput) {
+        pathInput.value = folderPath;
+      }
+      if (statusText) {
+        statusText.textContent = folderPath ? `Selected: ${folderPath}` : 'No folder selected';
+      }
+    }
+
+    this.syncSelectedFolder();
+    this.updatePreview();
+  }
+
+  /**
+   * selectedFolder 後方互換性の同期
+   */
+  syncSelectedFolder() {
+    const validFolders = this.selectedFolders.filter(f => f.path);
+    this.selectedFolder = validFolders.length > 0 ? validFolders[0].path : '';
+  }
+
+  /**
+   * 有効なフォルダパス一覧を取得
+   */
+  getSelectedFolderPaths() {
+    return this.selectedFolders.filter(f => f.path).map(f => f.path);
+  }
+
+  /**
+   * フォルダ表示更新（後方互換・単一フォルダ用）
    */
   updateFolderDisplay(folderPath) {
-    const folderInput = document.getElementById('targetFolder');
-    const folderStatus = document.getElementById('folderStatus');
+    if (this.selectedFolders.length > 0) {
+      this.updateFolderPath(this.selectedFolders[0].id, folderPath);
+    }
+  }
 
-    if (folderInput) {
-      folderInput.value = folderPath;
+  /**
+   * 設定からフォルダリストを読み込み
+   */
+  loadFoldersFromConfig(folderPaths) {
+    // 既存フォルダをクリア
+    const foldersList = document.getElementById('foldersList');
+    if (foldersList) {
+      foldersList.textContent = '';
+    }
+    this.selectedFolders = [];
+
+    // フォルダを追加
+    folderPaths.forEach((folderPath, index) => {
+      const folderId = `folder-${index + 1}`;
+      const folder = { id: folderId, path: folderPath };
+      this.selectedFolders.push(folder);
+
+      const folderElement = this.createFolderElement(folder);
+      if (foldersList) {
+        foldersList.appendChild(folderElement);
+      }
+    });
+
+    // 空の場合は1つ追加
+    if (this.selectedFolders.length === 0) {
+      const folder = { id: 'folder-1', path: '' };
+      this.selectedFolders.push(folder);
+      const folderElement = this.createFolderElement(folder);
+      if (foldersList) {
+        foldersList.appendChild(folderElement);
+      }
     }
 
-    if (folderStatus) {
-      folderStatus.textContent = `Selected: ${folderPath}`;
-    }
+    this.folderIdCounter = this.selectedFolders.length + 1;
+    this.syncSelectedFolder();
   }
 
   /**
@@ -916,29 +1174,35 @@ class UIController {
    * プレビュー更新
    */
   async updatePreview() {
-    if (!this.selectedFolder) {
+    const folderPaths = this.getSelectedFolderPaths();
+    if (folderPaths.length === 0) {
       this.updatePreviewDisplay(0, 0);
       return;
     }
 
     try {
       const extensions = this.getSelectedExtensions();
-      const result = await window.electronAPI.findFiles(this.selectedFolder, extensions, [
-        'node_modules/**',
-        '.git/**',
-        'dist/**',
-        'build/**',
-      ]);
+      const excludePatterns = ['node_modules/**', '.git/**', 'dist/**', 'build/**'];
 
-      if (result.success) {
-        this.foundFiles = result.files;
-        const activeRules = this.replacementRules.filter(
-          rule => rule.enabled && rule.from && rule.to
-        );
-        this.updatePreviewDisplay(result.files.length, activeRules.length);
-      } else {
-        this.updatePreviewDisplay(0, 0);
+      // 複数フォルダから並行でファイル検索
+      const searchPromises = folderPaths.map(folderPath =>
+        window.electronAPI.findFiles(folderPath, extensions, excludePatterns)
+      );
+      const results = await Promise.all(searchPromises);
+
+      // 全フォルダの結果を統合
+      let allFiles = [];
+      for (const result of results) {
+        if (result.success && result.files) {
+          allFiles = allFiles.concat(result.files);
+        }
       }
+
+      this.foundFiles = allFiles;
+      const activeRules = this.replacementRules.filter(
+        rule => rule.enabled && rule.from && rule.to
+      );
+      this.updatePreviewDisplay(allFiles.length, activeRules.length);
     } catch (error) {
       console.error('❌ Preview update failed:', error);
       this.updatePreviewDisplay(0, 0);
@@ -1016,7 +1280,7 @@ class UIController {
       }
 
       // 基本バリデーション
-      if (!this.selectedFolder) {
+      if (this.getSelectedFolderPaths().length === 0) {
         this.showError('エラー', 'フォルダを選択してください');
         return;
       }
@@ -1126,10 +1390,13 @@ class UIController {
    */
   loadConfigData(config) {
     try {
-      // フォルダパス設定
-      if (config.target_folder) {
-        this.selectedFolder = config.target_folder;
-        this.updateFolderDisplay(config.target_folder);
+      // フォルダパス設定（複数フォルダ対応）
+      if (config.target_folders && Array.isArray(config.target_folders)) {
+        // 複数フォルダ形式
+        this.loadFoldersFromConfig(config.target_folders);
+      } else if (config.target_folder) {
+        // 後方互換: 単一フォルダ形式
+        this.loadFoldersFromConfig([config.target_folder]);
       }
 
       // 拡張子設定
@@ -1202,7 +1469,8 @@ class UIController {
         description: 'User configuration',
         author: 'User',
       },
-      target_folder: this.selectedFolder,
+      target_folder: this.selectedFolder, // 後方互換
+      target_folders: this.getSelectedFolderPaths(),
       replacements: this.replacementRules.map(rule => ({
         id: rule.id,
         from: rule.from,

@@ -57,8 +57,8 @@ Multi Grep Replacer is a modern, high-performance desktop application that allow
 
 | Platform | Download | Size | Architecture |
 |----------|----------|------|-------------|
-| **macOS** | [MultiGrepReplacer-1.0.0.dmg](https://github.com/sarap422/electron-multi-grep-replacer/releases/download/v1.0.0/MultiGrepReplacer-1.0.0.dmg) | ~140MB | Universal (Intel + Apple Silicon) |
-| **Windows** | [MultiGrepReplacer-Setup-1.0.0.exe](https://github.com/sarap422/electron-multi-grep-replacer/releases/download/v1.0.0/MultiGrepReplacer-Setup-1.0.0.exe) | ~67MB | x64 |
+| **macOS** | [MultiGrepReplacer-1.0.1.dmg](https://github.com/sarap422/electron-multi-grep-replacer/releases/download/v1.0.1/MultiGrepReplacer-1.0.1.dmg) | ~140MB | Universal (Intel + Apple Silicon) |
+| **Windows** | [MultiGrepReplacer-Setup-1.0.1.exe](https://github.com/sarap422/electron-multi-grep-replacer/releases/download/v1.0.1/MultiGrepReplacer-Setup-1.0.1.exe) | ~67MB | x64 |
 
 ### System Requirements
 

@@ -224,7 +224,7 @@ class ExecutionController {
     const message = [
       '置換処理を実行しますか？',
       '',
-      `対象フォルダ: ${config.targetFolder}`,
+      `対象フォルダ: ${config.targetFolders.join(', ')}`,
       `ファイル拡張子: ${config.extensions || '全ファイル'}`,
       `置換ルール: ${config.rules.length}件`,
       '',
@@ -405,7 +405,18 @@ class ExecutionController {
    * 実行設定の収集
    */
   gatherExecutionConfig() {
-    const targetFolder = document.getElementById('targetFolder')?.value || '';
+    // 複数フォルダのパスを収集
+    const targetFolders = [];
+    const folderItems = document.querySelectorAll('.folder-item');
+    folderItems.forEach(item => {
+      const pathInput = item.querySelector('.folder-path-input');
+      if (pathInput?.value?.trim()) {
+        targetFolders.push(pathInput.value.trim());
+      }
+    });
+
+    // 後方互換: 最初のフォルダをtargetFolderとしても保持
+    const targetFolder = targetFolders.length > 0 ? targetFolders[0] : '';
     const extensions = document.getElementById('fileExtensions')?.value || '';
 
     // 置換ルールの収集
@@ -428,7 +439,8 @@ class ExecutionController {
     });
 
     return {
-      targetFolder: targetFolder.trim(),
+      targetFolder, // 後方互換
+      targetFolders, // 複数フォルダ
       extensions: extensions.trim(),
       rules,
       options: {
@@ -446,8 +458,8 @@ class ExecutionController {
   validateExecutionConfig(config) {
     const errors = [];
 
-    // 必須フィールドチェック
-    if (!config.targetFolder) {
+    // 必須フィールドチェック（複数フォルダ対応）
+    if (!config.targetFolders || config.targetFolders.length === 0) {
       errors.push('対象フォルダが選択されていません');
     }
 
@@ -517,7 +529,7 @@ class ExecutionController {
       if (window.vibeLogger) {
         window.vibeLogger.info('execution_started', '置換処理実行開始', {
           context: {
-            targetFolder: config.targetFolder,
+            targetFolders: config.targetFolders,
             rulesCount: config.rules.length,
             extensions: config.extensions,
             timestamp: new Date().toISOString(),
@@ -558,7 +570,8 @@ class ExecutionController {
       });
 
       const result = await window.electronAPI.executeReplacement({
-        targetFolder: config.targetFolder,
+        targetFolder: config.targetFolder, // 後方互換
+        targetFolders: config.targetFolders, // 複数フォルダ
         extensions: config.extensions,
         rules: config.rules,
         options: config.options,
@@ -611,21 +624,36 @@ class ExecutionController {
    */
   async enhancedMockExecution(config) {
     try {
-      // 実際のファイル検索を試行
-      const searchResult = await window.electronAPI.findFiles(
-        config.targetFolder,
-        config.extensions ? config.extensions.split(',').map(ext => ext.trim()) : [],
-        ['node_modules/**', '.git/**', 'dist/**', 'build/**']
-      );
+      // 複数フォルダ対応: 全フォルダから検索
+      const folders =
+        config.targetFolders && config.targetFolders.length > 0
+          ? config.targetFolders
+          : config.targetFolder
+          ? [config.targetFolder]
+          : [];
+      const extensionsArray = config.extensions
+        ? config.extensions.split(',').map(ext => ext.trim())
+        : [];
+      const excludePatterns = ['node_modules/**', '.git/**', 'dist/**', 'build/**'];
 
-      if (searchResult.success && searchResult.files && searchResult.files.length > 0) {
-        // 実際のファイルを使用
-        this.actualFiles = searchResult.files; // 保存しておく
-        this.stats.totalFiles = searchResult.files.length;
-        await this.simulateProcessing(searchResult.files, config);
+      let allFiles = [];
+      for (const folder of folders) {
+        const searchResult = await window.electronAPI.findFiles(
+          folder,
+          extensionsArray,
+          excludePatterns
+        );
+        if (searchResult.success && searchResult.files) {
+          allFiles = allFiles.concat(searchResult.files);
+        }
+      }
+
+      if (allFiles.length > 0) {
+        this.actualFiles = allFiles;
+        this.stats.totalFiles = allFiles.length;
+        await this.simulateProcessing(allFiles, config);
       } else {
         console.warn('⚠️ No files found, using mock files');
-        // ファイル検索が失敗した場合はフォールバック
         await this.mockExecution(config);
       }
     } catch (error) {

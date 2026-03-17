@@ -934,37 +934,53 @@ class MultiGrepReplacerApp {
       await DebugLogger.startPerformance(operationId);
 
       try {
+        // 複数フォルダ対応: targetFolders があればそれを使う、なければ targetFolder を配列化
+        const targetFolders =
+          config.targetFolders && config.targetFolders.length > 0
+            ? config.targetFolders
+            : config.targetFolder
+            ? [config.targetFolder]
+            : [];
+
         await DebugLogger.info('Starting replacement execution', {
-          targetFolder: config.targetFolder,
+          targetFolders,
           extensions: config.extensions,
           rulesCount: config.rules?.length || 0,
         });
 
         console.log('🔍 Debug - executeReplacement called with config:', {
-          targetFolder: config.targetFolder,
+          targetFolders,
           extensions: config.extensions,
           rules: config.rules,
         });
 
-        // 1. ファイル検索
-        console.log('🔍 Debug - Calling fileSearchEngine.searchFiles...');
-        const searchResult = await this.fileSearchEngine.searchFiles(
-          config.targetFolder,
-          config.extensions ? config.extensions.split(',').map(ext => ext.trim()) : [],
-          {
-            excludePatterns: ['node_modules/**', '.git/**', 'dist/**', 'build/**'],
-            ...config.options,
-          }
-        );
+        // 1. 複数フォルダからファイル検索
+        const extensionsArray = config.extensions
+          ? config.extensions.split(',').map(ext => ext.trim())
+          : [];
+        const searchOptions = {
+          excludePatterns: ['node_modules/**', '.git/**', 'dist/**', 'build/**'],
+          ...config.options,
+        };
 
-        console.log('🔍 Debug - Search result:', {
-          success: !!searchResult,
-          filesCount: searchResult?.files?.length || 0,
-          files: searchResult?.files?.slice(0, 3) || [],
-        });
+        let allFiles = [];
+        for (const folder of targetFolders) {
+          console.log(`🔍 Debug - Searching files in: ${folder}`);
+          const searchResult = await this.fileSearchEngine.searchFiles(
+            folder,
+            extensionsArray,
+            searchOptions
+          );
+          if (searchResult?.files) {
+            allFiles = allFiles.concat(searchResult.files);
+          }
+        }
+
+        console.log('🔍 Debug - Total files found across all folders:', allFiles.length);
 
         await DebugLogger.info('Files found', {
-          count: searchResult.files?.length || 0,
+          count: allFiles.length,
+          folderCount: targetFolders.length,
         });
 
         // 2. 進捗通知のセットアップ
@@ -975,7 +991,7 @@ class MultiGrepReplacerApp {
 
         // 3. ファイル置換処理
         // FileSearchEngineから返されるファイルオブジェクトのpathプロパティを抽出
-        const filePaths = searchResult.files.map(file => file.path || file);
+        const filePaths = allFiles.map(file => file.path || file);
         console.log('🔍 Debug - Extracted file paths:', filePaths);
 
         const replacementResult = await this.replacementEngine.processFiles(
@@ -986,7 +1002,7 @@ class MultiGrepReplacerApp {
         const result = {
           success: true,
           stats: {
-            totalFiles: searchResult.files?.length || 0,
+            totalFiles: allFiles.length || 0,
             processedFiles: replacementResult.stats?.processedFiles || 0,
             changedFiles: replacementResult.stats?.modifiedFiles || 0,
             totalChanges: replacementResult.stats?.totalReplacements || 0,
