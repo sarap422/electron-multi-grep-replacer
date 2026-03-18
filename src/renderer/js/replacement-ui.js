@@ -459,7 +459,7 @@ class RuleManager {
     return {
       total: this.uiController.replacementRules.length,
       enabled: this.uiController.replacementRules.filter(r => r.enabled).length,
-      active: this.uiController.replacementRules.filter(r => r.enabled && r.from && r.to).length,
+      active: this.uiController.replacementRules.filter(r => r.enabled && r.from).length,
     };
   }
 }

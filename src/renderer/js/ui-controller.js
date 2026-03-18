@@ -1199,9 +1199,7 @@ class UIController {
       }
 
       this.foundFiles = allFiles;
-      const activeRules = this.replacementRules.filter(
-        rule => rule.enabled && rule.from && rule.to
-      );
+      const activeRules = this.replacementRules.filter(rule => rule.enabled && rule.from);
       this.updatePreviewDisplay(allFiles.length, activeRules.length);
     } catch (error) {
       console.error('❌ Preview update failed:', error);
@@ -1229,7 +1227,7 @@ class UIController {
    * アクティブルール数更新
    */
   updateActiveRuleCount() {
-    const activeRules = this.replacementRules.filter(rule => rule.enabled && rule.from && rule.to);
+    const activeRules = this.replacementRules.filter(rule => rule.enabled && rule.from);
     const activeRuleCountElement = document.getElementById('activeRuleCount');
 
     if (activeRuleCountElement) {
@@ -1285,9 +1283,7 @@ class UIController {
         return;
       }
 
-      const activeRules = this.replacementRules.filter(
-        rule => rule.enabled && rule.from && rule.to
-      );
+      const activeRules = this.replacementRules.filter(rule => rule.enabled && rule.from);
       if (activeRules.length === 0) {
         this.showError('エラー', '有効な置換ルールがありません');
         return;
@@ -1504,7 +1500,7 @@ class UIController {
   getDefaultConfig() {
     return {
       selectedFolder: '',
-      fileExtensions: '.html,.css,.js,.jsx,.tsx,.vue,.php',
+      fileExtensions: '.html,.css,.scss,.js,.jsx,.tsx,.vue,.php',
       replacementRules: [],
     };
   }

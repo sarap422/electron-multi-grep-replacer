@@ -428,11 +428,11 @@ class ExecutionController {
       const fromInput = item.querySelector('.rule-from');
       const toInput = item.querySelector('.rule-to');
 
-      if (checkbox?.checked && fromInput?.value && toInput?.value) {
+      if (checkbox?.checked && fromInput?.value) {
         rules.push({
           id: item.dataset.ruleId || `rule-${index + 1}`,
-          from: fromInput.value.trim(),
-          to: toInput.value.trim(),
+          from: fromInput.value,
+          to: toInput?.value ?? '',
           enabled: true,
         });
       }
