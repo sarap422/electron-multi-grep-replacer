@@ -434,6 +434,9 @@ class RuleManager {
         rulesList.innerHTML = '';
       }
 
+      // IDカウンターリセット（次のaddRule()でrule-1から開始）
+      this.uiController.ruleIdCounter = 1;
+
       // カウンター更新
       this.uiController.updateActiveRuleCount();
 

@@ -1431,9 +1431,10 @@ class UIController {
           }
         });
 
-        this.ruleIdCounter = config.replacements.length + 1;
-
+        // ruleManagerがない場合のみカウンターを更新
+        // （ruleManager.addRule()は内部でruleIdCounterを自動インクリメントするため不要）
         if (!this.ruleManager) {
+          this.ruleIdCounter = config.replacements.length + 1;
           this.renderRules();
         }
       }
