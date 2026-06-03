@@ -1019,12 +1019,8 @@ class ExecutionController {
     this.elements.resultSummary.textContent = `${this.stats.changedFiles} files modified with ${this.stats.totalChanges} total changes`;
     this.elements.completionTime.textContent = timeString;
 
-    // 詳細結果（実際の結果またはモック）
-    const resultsHtml =
-      this.results && this.results.length > 0
-        ? this.generateActualResults()
-        : this.generateMockResults();
-    this.elements.resultDetails.innerHTML = resultsHtml;
+    // 詳細結果（実結果から生成。タブ区切り・選択コピー可能なテキスト）
+    this.elements.resultDetails.innerHTML = this.generateActualResults();
 
     // 結果モーダル表示
     this.elements.resultModal?.classList.remove('hidden');
@@ -1047,120 +1043,54 @@ class ExecutionController {
   }
 
   /**
-   * 実際の結果を生成
+   * 実結果から行データを生成（表示・コピー・CSV 共通のデータ源）
+   * @returns {Array<{path:string,changes:number,rule:string,from:string,to:string,count:number}>}
    */
-  generateActualResults() {
-    console.log('🔍 Debug: Generating actual results from:', this.results);
-
-    // 実際の置換結果を使用
-    const actualFiles = this.results.filter(result => result.modified || result.changes > 0);
-
-    return `
-      <div class="result-list">
-        ${actualFiles
-          .map(file => {
-            const filePath = file.path || 'Unknown file';
-            const changes = file.changes || 0;
-            const details = file.details || [];
-
-            return `
-              <div class="result-file">
-                <div class="file-header">
-                  <span class="file-icon">✅</span>
-                  <span class="file-path">${filePath}</span>
-                  <span class="change-count">(${changes} changes)</span>
-                </div>
-                <div class="rule-changes">
-                  ${details
-                    .map(
-                      detail => `
-                      <div class="rule-change">
-                        <span class="rule-from">${detail.rule || 'Unknown rule'}</span>
-                        <span class="occurrence-count">(${detail.count || 0} occurrence${
-                        detail.count !== 1 ? 's' : ''
-                      })</span>
-                      </div>
-                    `
-                    )
-                    .join('')}
-                </div>
-              </div>
-            `;
-          })
-          .join('')}
-      </div>
-    `;
+  buildResultRows() {
+    const rows = [];
+    (this.results || []).forEach(file => {
+      if (!(file.modified || (file.changes || 0) > 0)) {
+        return;
+      }
+      const changes = file.changes || 0;
+      const details =
+        file.details && file.details.length > 0
+          ? file.details
+          : [{ rule: '', from: '', to: '', count: changes }];
+      details.forEach(d => {
+        rows.push({
+          path: file.path || 'Unknown file',
+          changes,
+          rule: d.rule || (d.from !== undefined ? `${d.from} → ${d.to}` : ''),
+          from: d.from != null ? d.from : '',
+          to: d.to != null ? d.to : '',
+          count: d.count || 0,
+        });
+      });
+    });
+    return rows;
   }
 
   /**
-   * モック結果生成（テスト用）
+   * 結果テキスト行（タブ区切り・表示とコピーで共通）
+   * 例: ✅\t/path/file.php\t(5 changes)\tA → B (5 occurrences)
    */
-  generateMockResults() {
-    // 現在の設定から実際のルールを取得
-    const config = this.gatherExecutionConfig();
-    const activeRules = config.rules || [];
+  buildResultTextLines() {
+    return this.buildResultRows().map(r => {
+      const occ = `${r.count} occurrence${r.count !== 1 ? 's' : ''}`;
+      return `✅\t${r.path}\t(${r.changes} changes)\t${r.rule} (${occ})`;
+    });
+  }
 
-    // 実際のファイルがあればそれを使用、なければフォールバック
-    let mockFiles;
-    if (this.actualFiles && this.actualFiles.length > 0) {
-      // 実際に検索されたファイルを使用
-      mockFiles = this.actualFiles.slice(0, this.stats.changedFiles).map(filePath => ({
-        path: filePath,
-        changes: Math.floor(Math.random() * 3) + 1, // 1-3の変更数
-      }));
-    } else {
-      // フォールバック：実際のターゲットパスを使用
-      const targetPath = config.targetFolder || '/project';
-      mockFiles = [
-        { path: `${targetPath}/test.html`, changes: 3 },
-        { path: `${targetPath}/temp-replacement/batch-test.css`, changes: 1 },
-        { path: `${targetPath}/temp-replacement/replacement-test.html`, changes: 2 },
-      ].slice(0, this.stats.changedFiles);
+  /**
+   * 実際の結果を生成（等幅・タブ区切り・選択コピー可能な <pre>）
+   */
+  generateActualResults() {
+    const lines = this.buildResultTextLines();
+    if (lines.length === 0) {
+      return '<pre class="result-text">（変更されたファイルはありません）</pre>';
     }
-
-    return `
-            <div class="result-list">
-                ${mockFiles
-                  .map(file => {
-                    // 各ファイルのルールごとの変更数を配分
-                    const changesPerRule = Math.max(
-                      1,
-                      Math.floor(file.changes / activeRules.length)
-                    );
-                    const remainder = file.changes % activeRules.length;
-
-                    return `
-                    <div class="result-file">
-                        <div class="file-header">
-                            <span class="file-icon">✅</span>
-                            <span class="file-path">${file.path}</span>
-                            <span class="change-count">(${file.changes} changes)</span>
-                        </div>
-                        <div class="file-details">
-                            ${activeRules
-                              .map((rule, index) => {
-                                const occurrences = changesPerRule + (index < remainder ? 1 : 0);
-                                return occurrences > 0
-                                  ? `
-                            <div class="change-detail">
-                                <span class="change-from">${this.escapeHtml(rule.from)}</span>
-                                <span class="change-arrow">→</span>
-                                <span class="change-to">${this.escapeHtml(rule.to)}</span>
-                                <span class="occurrence-count">(${occurrences} occurrence${
-                                      occurrences > 1 ? 's' : ''
-                                    })</span>
-                            </div>
-                              `
-                                  : '';
-                              })
-                              .join('')}
-                        </div>
-                    </div>
-                `;
-                  })
-                  .join('')}
-            </div>
-        `;
+    return `<pre class="result-text">${this.escapeHtml(lines.join('\n'))}</pre>`;
   }
 
   /**
@@ -1236,49 +1166,20 @@ class ExecutionController {
    * CSV結果生成
    */
   generateCSVResults() {
-    const config = this.gatherExecutionConfig();
-    const activeRules = config.rules || [];
-
     const headers = ['File Path', 'Changes Count', 'From', 'To', 'Occurrences'];
+
+    // 実結果から行を生成（同一ファイルの2行目以降は Changes Count を空欄に）
     const rows = [];
-
-    // 実際のファイルまたはフォールバックファイルを使用
-    let mockFiles;
-    if (this.actualFiles && this.actualFiles.length > 0) {
-      mockFiles = this.actualFiles.slice(0, this.stats.changedFiles).map(filePath => ({
-        path: filePath,
-        changes: Math.floor(Math.random() * 3) + 1,
-      }));
-    } else {
-      const targetPath = config.targetFolder || '/project';
-      mockFiles = [
-        { path: `${targetPath}/test.html`, changes: 3 },
-        { path: `${targetPath}/temp-replacement/batch-test.css`, changes: 1 },
-        { path: `${targetPath}/temp-replacement/replacement-test.html`, changes: 2 },
-      ];
-    }
-
-    mockFiles.forEach(file => {
-      const changesPerRule = Math.max(1, Math.floor(file.changes / activeRules.length));
-      const remainder = file.changes % activeRules.length;
-
-      activeRules.forEach((rule, index) => {
-        const occurrences = changesPerRule + (index < remainder ? 1 : 0);
-        if (occurrences > 0) {
-          rows.push([
-            file.path,
-            index === 0 ? file.changes.toString() : '', // 最初のルールのみ合計変更数を表示
-            rule.from,
-            rule.to,
-            occurrences.toString(),
-          ]);
-        }
-      });
+    let lastPath = null;
+    this.buildResultRows().forEach(r => {
+      const changesCell = r.path === lastPath ? '' : String(r.changes);
+      lastPath = r.path;
+      rows.push([r.path, changesCell, r.from, r.to, String(r.count)]);
     });
 
-    const csv = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-
-    return csv;
+    // RFC4180準拠の簡易エスケープ（内部のダブルクォートを二重化）
+    const escapeCell = cell => `"${String(cell).replace(/"/g, '""')}"`;
+    return [headers, ...rows].map(row => row.map(escapeCell).join(',')).join('\n');
   }
 
   /**
@@ -1318,60 +1219,8 @@ class ExecutionController {
    * テキストサマリー生成
    */
   generateTextSummary() {
-    const executionTime = this.elements.completionTime.textContent;
-    const config = this.gatherExecutionConfig();
-    const activeRules = config.rules || [];
-
-    // 実際のファイルまたはフォールバックファイルを使用
-    let mockFiles;
-    if (this.actualFiles && this.actualFiles.length > 0) {
-      mockFiles = this.actualFiles.slice(0, this.stats.changedFiles).map(filePath => ({
-        path: filePath,
-        changes: Math.floor(Math.random() * 3) + 1,
-      }));
-    } else {
-      const targetPath = config.targetFolder || '/project';
-      mockFiles = [
-        { path: `${targetPath}/test.html`, changes: 3 },
-        { path: `${targetPath}/temp-replacement/batch-test.css`, changes: 1 },
-        { path: `${targetPath}/temp-replacement/replacement-test.html`, changes: 2 },
-      ];
-    }
-
-    const detailLines = [];
-    mockFiles.forEach(file => {
-      detailLines.push(`✅ ${file.path} (${file.changes} changes)`);
-
-      const changesPerRule = Math.max(1, Math.floor(file.changes / activeRules.length));
-      const remainder = file.changes % activeRules.length;
-
-      activeRules.forEach((rule, index) => {
-        const occurrences = changesPerRule + (index < remainder ? 1 : 0);
-        if (occurrences > 0) {
-          detailLines.push(
-            `   - ${rule.from} → ${rule.to} (${occurrences} occurrence${
-              occurrences > 1 ? 's' : ''
-            })`
-          );
-        }
-      });
-    });
-
-    return [
-      'Multi Grep Replacer - 実行結果サマリー',
-      '=====================================',
-      '',
-      `実行日時: ${new Date().toLocaleString()}`,
-      `処理時間: ${executionTime}`,
-      `処理ファイル数: ${this.stats.processedFiles} / ${this.stats.totalFiles}`,
-      `変更ファイル数: ${this.stats.changedFiles}`,
-      `総変更数: ${this.stats.totalChanges}`,
-      `エラー数: ${this.stats.errors}`,
-      '',
-      '詳細結果:',
-      '--------',
-      ...detailLines,
-    ].join('\n');
+    // 表示と同一のタブ区切りテキスト（実結果）をコピー対象にする
+    return this.buildResultTextLines().join('\n');
   }
 
   /**
@@ -1454,9 +1303,9 @@ class ExecutionController {
                 box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
                 animation: slideIn 0.3s ease;
             }
-            .toast-success { border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
-            .toast-error { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
-            .toast-info { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+            .toast-success { border-color: #22c55e; background: #f0fdf4; color: #166534; }
+            .toast-error { border-color: #ef4444; background: #fef2f2; color: #991b1b; }
+            .toast-info { border-color: #3b82f6; background: #eff6ff; color: #1e40af; }
             
             @keyframes slideIn {
                 from { transform: translateX(100%); opacity: 0; }

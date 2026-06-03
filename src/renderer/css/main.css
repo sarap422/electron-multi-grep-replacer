@@ -658,28 +658,6 @@ kbd {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* ヘルプモーダルスタイル */
-#helpModal h3 {
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  color: var(--text-primary);
-}
-
-#helpModal h3:first-child {
-  margin-top: 0;
-}
-
-#helpModal ul,
-#helpModal ol {
-  margin: 0.5em 0;
-  padding-left: 1.5em;
-}
-
-#helpModal li {
-  margin: 0.3em 0;
-  line-height: 1.6;
-}
-
 /* レスポンシブデザイン */
 @media (max-width: 768px) {
   .app-header {

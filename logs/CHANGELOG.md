@@ -1,5 +1,50 @@
 # CHANGELOG.md - Multi Grep Replacer 実装記録
 
+## [Task 0604.3] リザルト表示の修正・見直し - 2026-06-03
+
+### 🎯 Task完了成果
+**Task 0604.3: feat: リザルト表示を選択コピー可能な実データ表示に刷新 → ✅完了**
+
+### Changed
+- **リザルト表示の刷新**: カード型 → **等幅・タブ区切りの選択コピー可能な `<pre class="result-text">`**。1行＝「ファイル×ルール」。`white-space:pre`／`overflow-x:auto`／`user-select:text` でドラッグ・Cmd+Aで綺麗にコピー可能
+- **Copy Summary**: 統計ヘッダ廃止 → 表示と同一のタブ区切り実データをコピー（`✅\t{path}\t({changes} changes)\t{from → to} ({count} occurrences)`）
+- **Export Results (CSV)**: モック撤去 → **実結果 `this.results` から生成**。From/To列分離・同一ファイル2行目以降はChanges空欄・内部 `"` を `""` に正規エスケープ
+- **成功トースト**: `rgba(...,0.1)`（10%透明で不可読）→ 不透明な淡色＋可読テキスト色に変更
+- **Export/Copyボタン**: `.result-modal .modal-actions button` の `border:none` を上書きし、Load/Save Config と同じ枠付き `.secondary-button` 見た目に統一
+
+### Fixed
+- リザルトの Export/Copy が `test.html` 等の**モックデータ**を出力していた問題（表示は実データだが Export/Copy/CSV はモックロジックだった）
+
+### Removed
+- `generateMockResults()`（test.htmlモックの元凶）、`generateTextSummary` のモック生成、`ui-controller.js` の Export/Copy 二重バインド＋孤立メソッド（ExecutionControllerに一元化）
+
+### Added
+- `replacement-engine.js` の details に `from`/`to` を追加（CSVのFrom/To列分離を堅牢化）
+- `execution-controller.js` に `buildResultRows()`/`buildResultTextLines()`（表示・コピー・CSV共通のデータ源）
+
+### Test
+- ✅ 構文チェック（execution-controller / ui-controller / replacement-engine）
+- ✅ ユニット検証: 実構造サンプルで「未変更ファイル除外・複数ルール展開・タブ区切り・CSVクォート二重化」を確認
+- ✅ 実機: 実置換でドラッグコピー／Copy Summary／Export CSV／トースト可読を確認
+
+---
+
+## [Task 0604.2] 動かないヘッダーボタンの撤去 - 2026-06-03
+
+### 🎯 Task完了成果
+**Task 0604.2: fix: 動作しないヘッダーボタン(Theme/Settings/Help)を撤去 → ✅完了**
+
+### Removed
+- ヘッダー右上の3ボタンを撤去（159行削除・追加0）:
+  - **⚙️ Settings**: ハンドラ未実装の完全デッドボタン（HTMLのみ）
+  - **❓ Help**: ボタン＋`showHelp()`/`showHelpModal()`/`getModifierKeyDisplay()`＋ショートカット(Cmd+H/?)＋`#helpModal` CSS（モーダルが `.show` 不足で常に不可視だった）
+  - **🌓 Theme**: ボタンのみ（`theme-switcher.js` は残置。`updateThemeIcon` の null早期returnで安全）
+
+### Verified
+- 残存参照ゼロ・構文OK・起動エラーなし（`Theme toggle button not found` 警告は想定内・無害）
+
+---
+
 ## [Task 0603.1] ダブルクォート(")が保存できない問題の修正 - 2026-06-03
 
 ### 🎯 Task完了成果

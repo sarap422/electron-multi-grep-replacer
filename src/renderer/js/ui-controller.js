@@ -171,12 +171,6 @@ class UIController {
     // 実行ボタン - ExecutionControllerに委譲するため、ここでは登録しない
     // ExecutionController が直接処理する
 
-    // ヘルプボタン
-    const helpButton = document.getElementById('helpButton');
-    if (helpButton) {
-      helpButton.addEventListener('click', () => this.showHelp());
-    }
-
     // モーダル制御
     this.setupModalListeners();
 
@@ -234,19 +228,6 @@ class UIController {
           this.handleFolderSelect();
           break;
 
-        case 'h':
-          // Ctrl/Cmd + H: ヘルプ表示
-          e.preventDefault();
-          this.showHelp();
-          break;
-
-        case '?':
-          // Ctrl/Cmd + ?: ヘルプ表示（代替）
-          if (e.shiftKey) {
-            e.preventDefault();
-            this.showHelp();
-          }
-          break;
         default:
           // 他のキーは何もしない
           break;
@@ -268,108 +249,8 @@ class UIController {
             'Ctrl/Cmd+E: 実行',
             'Ctrl/Cmd+N: 新規ルール',
             'Ctrl/Cmd+F: フォルダ選択',
-            'Ctrl/Cmd+H: ヘルプ',
             'Escape: モーダル閉じる',
           ],
-        },
-      });
-    }
-  }
-
-  /**
-   * ヘルプ表示
-   */
-  showHelp() {
-    const helpContent = `
-      <h3>キーボードショートカット</h3>
-      <ul style="list-style: none; padding: 0;">
-        <li><kbd>${this.getModifierKeyDisplay()}+S</kbd> - 設定を保存</li>
-        <li><kbd>${this.getModifierKeyDisplay()}+O</kbd> - 設定を読み込み</li>
-        <li><kbd>${this.getModifierKeyDisplay()}+E</kbd> - 置換を実行</li>
-        <li><kbd>${this.getModifierKeyDisplay()}+N</kbd> - 新規ルール追加</li>
-        <li><kbd>${this.getModifierKeyDisplay()}+F</kbd> - フォルダ選択</li>
-        <li><kbd>${this.getModifierKeyDisplay()}+H</kbd> - このヘルプを表示</li>
-        <li><kbd>Escape</kbd> - モーダルを閉じる</li>
-      </ul>
-      
-      <h3>使い方</h3>
-      <ol>
-        <li>対象フォルダを選択（Browse ボタンまたはドラッグ&ドロップ）</li>
-        <li>ファイル拡張子を指定（空欄で全ファイル対象）</li>
-        <li>置換ルールを設定（From → To）</li>
-        <li>Execute Replacement ボタンで実行</li>
-      </ol>
-      
-      <h3>ヒント</h3>
-      <ul>
-        <li>ルールは上から順番に適用されます</li>
-        <li>チェックボックスでルールの有効/無効を切り替えられます</li>
-        <li>設定は JSON ファイルとして保存・共有できます</li>
-      </ul>
-    `;
-
-    this.showHelpModal('Multi Grep Replacer ヘルプ', helpContent);
-  }
-
-  /**
-   * 修飾キーの表示名取得
-   */
-  getModifierKeyDisplay() {
-    // macOS では Cmd、それ以外では Ctrl
-    return navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl';
-  }
-
-  /**
-   * ヘルプモーダル表示
-   */
-  showHelpModal(title, content) {
-    // 既存のヘルプモーダルがあれば削除
-    const existingModal = document.getElementById('helpModal');
-    if (existingModal) {
-      existingModal.remove();
-    }
-
-    // ヘルプモーダル作成
-    const modalHtml = `
-      <div id="helpModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
-          <div class="modal-header">
-            <h2>${title}</h2>
-            <span class="modal-close" onclick="document.getElementById('helpModal').remove()">×</span>
-          </div>
-          <div class="modal-body" style="padding: 20px;">
-            ${content}
-          </div>
-          <div class="modal-footer">
-            <button class="button button-primary" onclick="document.getElementById('helpModal').remove()">
-              閉じる
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    // モーダルを body に追加
-    document.body.insertAdjacentHTML('beforeend', modalHtml);
-
-    // モーダルを表示
-    const helpModal = document.getElementById('helpModal');
-    helpModal.classList.add('scale-in');
-
-    // Escape キーでモーダルを閉じる
-    const handleEscape = e => {
-      if (e.key === 'Escape') {
-        helpModal.remove();
-        document.removeEventListener('keydown', handleEscape);
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-
-    // Vibe Logger記録
-    if (window.vibeLogger) {
-      window.vibeLogger.info('help_shown', 'ヘルプが表示されました', {
-        context: {
-          timestamp: new Date().toISOString(),
         },
       });
     }
@@ -383,13 +264,6 @@ class UIController {
     const resultModal = document.getElementById('resultModal');
     if (resultModal && !resultModal.classList.contains('hidden')) {
       this.hideResultModal();
-      return;
-    }
-
-    // ヘルプモーダル
-    const helpModal = document.getElementById('helpModal');
-    if (helpModal) {
-      helpModal.remove();
       return;
     }
 
@@ -456,8 +330,6 @@ class UIController {
     // 結果モーダル
     const modalClose = document.querySelector('.modal-close');
     const closeResultButton = document.getElementById('closeResultButton');
-    const exportResultsButton = document.getElementById('exportResultsButton');
-    const copySummaryButton = document.getElementById('copySummaryButton');
 
     if (modalClose) {
       modalClose.addEventListener('click', () => this.hideResultModal());
@@ -467,13 +339,7 @@ class UIController {
       closeResultButton.addEventListener('click', () => this.hideResultModal());
     }
 
-    if (exportResultsButton) {
-      exportResultsButton.addEventListener('click', () => this.handleExportResults());
-    }
-
-    if (copySummaryButton) {
-      copySummaryButton.addEventListener('click', () => this.handleCopySummary());
-    }
+    // Export Results / Copy Summary は ExecutionController が一元管理（二重バインド防止のため UIController では扱わない）
   }
 
   // ============================================
@@ -1746,33 +1612,6 @@ class UIController {
     }
   }
 
-  /**
-   * 結果エクスポート処理
-   */
-  async handleExportResults() {
-    try {
-      const config = this.getCurrentConfig();
-      await window.electronAPI.exportResults(config);
-      console.log('📤 Results exported');
-    } catch (error) {
-      console.error('❌ Export failed:', error);
-    }
-  }
-
-  /**
-   * サマリーコピー処理
-   */
-  async handleCopySummary() {
-    try {
-      const resultSummary = document.getElementById('resultSummary');
-      if (resultSummary) {
-        await navigator.clipboard.writeText(resultSummary.textContent);
-        console.log('📋 Summary copied to clipboard');
-      }
-    } catch (error) {
-      console.error('❌ Copy failed:', error);
-    }
-  }
 }
 
 // DOM読み込み完了後にUIController初期化

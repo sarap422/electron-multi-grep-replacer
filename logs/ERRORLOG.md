@@ -693,3 +693,24 @@ if (!this.ruleManager) {
 ### 🛡️ 予防策
 - ユーザー入力値を`innerHTML`の属性（`value="..."`等）へ文字列補間しない。値は要素生成後に`.value`/`.textContent`等のDOMプロパティで設定する
 - jsdom等でDOM往復の回帰テストを置き、`"`を含む値の保持を検証する（本件: 旧実装で`$root . "/`→`$root . `に切り詰め再現、新実装で完全保持を確認）
+
+---
+
+## [Task 0604.3] - 2026-06-03: リザルトのExport/Copyがモックデータを出力
+
+### ❌ 症状
+- 置換結果モーダルの**表示**は実データ（例 shortcodes.php, 5 changes）なのに、**Export ResultsのCSV**や**Copy Summary**は別物（`test.html`・`batch-test.css` 等のテストファイル名・ランダムな変更数）を出力していた
+
+### 🔍 原因
+- 表示は `generateActualResults()` が実結果 `this.results` を使う一方、`generateCSVResults()`/`generateTextSummary()` は `generateMockResults()` と同じ**モックロジック**（`this.actualFiles` をランダム変更数で生成、または `${targetPath}/test.html` 等のフォールバック）を使用
+- 「表示」と「エクスポート/コピー」でデータ源が分裂していた（実装完了後もモック経路が本番に残存）
+
+### ✅ 解決
+- 実結果 `this.results` を唯一のデータ源とする共通ヘルパー `buildResultRows()`/`buildResultTextLines()` を新設し、表示(`<pre>`)・コピー・CSV の3出力をすべてそこから生成
+- `generateMockResults()` を削除（偽データ経路を根絶）
+- CSVのセルエスケープを `"${cell}"`（内部クォート未処理）→ 内部 `"` を `""` に二重化（RFC4180準拠）に修正
+- ついでに Export/Copy の二重イベントバインド（ui-controller と execution-controller の両方が同ボタンにバインド）を解消
+
+### 🛡️ 予防策
+- 「表示・コピー・エクスポート」は必ず**同一データ源（実結果）**から生成する。機能ごとに別ロジック/モックを持たせない
+- モック/フォールバックの偽データは本番経路に残さない（実装完了時に撤去）

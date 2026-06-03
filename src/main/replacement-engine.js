@@ -172,6 +172,8 @@ class ReplacementEngine extends EventEmitter {
 
           fileResult.details.push({
             rule: `${rule.from} → ${rule.to}`,
+            from: rule.from,
+            to: rule.to,
             count: result.replacements,
           });
         }
