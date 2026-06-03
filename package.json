@@ -1,6 +1,6 @@
 {
   "name": "multi-grep-replacer",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Electron-based multi grep replacer with superior UI responsiveness",
   "main": "src/main/main.js",
   "author": {
@@ -86,14 +86,26 @@
       {
         "from": "config/",
         "to": "config/",
-        "filter": ["default.json"]
+        "filter": [
+          "default.json"
+        ]
       }
     ],
     "mac": {
       "category": "public.app-category.developer-tools",
       "target": [
-        {"target": "dmg", "arch": ["universal"]},
-        {"target": "zip", "arch": ["universal"]}
+        {
+          "target": "dmg",
+          "arch": [
+            "universal"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "universal"
+          ]
+        }
       ],
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
@@ -107,7 +119,12 @@
     },
     "win": {
       "target": [
-        {"target": "nsis", "arch": ["x64"]}
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "publisherName": "Multi Grep Replacer Team",
       "sign": null,
@@ -124,8 +141,18 @@
     },
     "linux": {
       "target": [
-        {"target": "AppImage", "arch": ["x64"]},
-        {"target": "deb", "arch": ["x64"]}
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "category": "Development"
     },

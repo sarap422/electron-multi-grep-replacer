@@ -1,5 +1,33 @@
 # CHANGELOG.md - Multi Grep Replacer 実装記録
 
+## [Task 0603.1] ダブルクォート(")が保存できない問題の修正 - 2026-06-03
+
+### 🎯 Task完了成果
+**Task 0603.1: fix: ダブルクォート(")を含む置換ルールが正しく保持されない問題の修正 → ✅完了**
+
+### Fixed
+- **ダブルクォート切り詰め問題**: 設定Load時にFrom/Toへ`"`を含む値（例 `$root . "/`、`="img/`）があると入力欄が`"`の手前で切り詰められ、Load後に編集して再保存するとデータが壊れるバグを修正
+  - 修正前: `RuleManager.createRuleElement()`が`innerHTML`内で`value="${rule.from}"`と文字列補間 → 値中の`"`が属性を途中で終端
+  - 修正後: `value`属性を廃止し、要素生成後に`input.value = rule.from`（DOMプロパティ）で設定
+
+### Root Cause
+- `replacement-ui.js:createRuleElement()`が`value="${rule.from}"` / `value="${rule.to}"`をHTML属性へ直接補間していた。値に`"`が含まれると属性が早期終端し`.value`が切り詰められる
+- Saveはメモリ上の`replacementRules`配列から行うため初回保存JSONは正しく見え、バグはUI表示と「Load→編集→保存」経路で顕在化していた
+
+### Changed
+- `replacement-ui.js`: `createRuleElement()`のFrom/To値設定を`value`属性補間からDOMプロパティ代入へ変更
+
+### Test
+- ✅ `node --check` 構文チェック通過
+- ✅ jsdom回帰テスト: 入力`$root_commonspath . "/` → 旧実装`.value`=`$root_commonspath . `（切り詰め再現）／新実装`.value`=完全保持
+
+### Build
+- ✅ バージョン 1.0.2 → 1.0.3
+- ✅ `MultiGrepReplacer-1.0.3.dmg` (139MB, universal) 生成
+- ✅ `MultiGrepReplacer-Setup-1.0.3.exe` (67MB, NSIS x64) 生成
+
+---
+
 ## [Task 0323.1] Load時からRuleを追加できない問題の修正 - 2026-03-23
 
 ### 🎯 Task完了成果

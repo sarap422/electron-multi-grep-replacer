@@ -1,5 +1,26 @@
 # PATTERNS.md - Electron開発パターン・ベストプラクティス
 
+## ユーザー入力値の安全なDOM設定（Task 0603.1 - 2026-06-03）
+
+### ルール: 動的生成DOMで、ユーザー値を `value="..."` 属性へ文字列補間しない
+- `innerHTML` の属性に `value="${userValue}"` と補間すると、値中の `"` が属性を途中で終端させ、入力欄の表示・保存値が壊れる
+- 値は要素を生成してから DOM プロパティで設定する（HTMLパースを経由しないため `"` `<` `>` `&` を安全に保持）
+
+```javascript
+// ❌ Bad: value属性へ補間（"で属性が終端し切り詰め）
+div.innerHTML = `<input class="rule-from" value="${rule.from}">`;
+
+// ✅ Good: 生成後に DOM プロパティで設定
+div.innerHTML = `<input class="rule-from">`;
+div.querySelector('.rule-from').value = rule.from || '';
+```
+
+### 知見: 「保存は壊れていないのに表示だけ壊れる」ときは Save経路 と Render経路 の非対称を疑う
+- 本件は Save がメモリ配列(`replacementRules`)から行われるため初回JSONは正しく、Render経路(`createRuleElement`)のみが破損していた
+- 症状が「Load後の表示」と「編集→再保存」でのみ顕在化する場合、データモデルではなくレンダリング層を調べる
+
+---
+
 ## IDカウンター管理の一元化（Task 0323.1 - 2026-03-23）
 
 ### ルール: カウンターの管理責任は一つの関数に集約する

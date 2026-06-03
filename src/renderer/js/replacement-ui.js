@@ -280,14 +280,14 @@ class RuleManager {
         <div class="rule-field-group">
           <label class="rule-label">From:</label>
           <input type="text" class="rule-from" placeholder="検索文字列" 
-                 value="${rule.from}" aria-label="Search text"
+                 aria-label="Search text"
                  title="置換前の文字列を入力">
         </div>
         <div class="rule-arrow">→</div>
         <div class="rule-field-group">
           <label class="rule-label">To:</label>
           <input type="text" class="rule-to" placeholder="置換文字列" 
-                 value="${rule.to}" aria-label="Replace text"
+                 aria-label="Replace text"
                  title="置換後の文字列を入力">
         </div>
       </div>
@@ -297,6 +297,18 @@ class RuleManager {
         </button>
       </div>
     `;
+
+    // From/To の値は value="..." 属性ではなく DOM プロパティ経由で設定する（Task 0603.1）。
+    // ダブルクォート(")を含む値を value 属性に直接埋め込むと属性が途中で終端し、
+    // 入力欄の表示が切り詰められ、結果として保存値が壊れるため。
+    const fromInput = ruleDiv.querySelector('.rule-from');
+    const toInput = ruleDiv.querySelector('.rule-to');
+    if (fromInput) {
+      fromInput.value = rule.from || '';
+    }
+    if (toInput) {
+      toInput.value = rule.to || '';
+    }
 
     // イベントリスナー設定
     this.setupRuleEventListeners(ruleDiv, rule);
