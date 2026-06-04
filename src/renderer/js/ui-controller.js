@@ -24,6 +24,10 @@ class UIController {
     this.templateManager = null;
     this.executionController = null;
 
+    // 検索/置換モード（Task 0604.4）
+    this.mode = 'replace';
+    this.isGrepping = false;
+
     console.log('🎮 UI Controller initializing...');
     this.initialize();
   }
@@ -170,6 +174,9 @@ class UIController {
 
     // 実行ボタン - ExecutionControllerに委譲するため、ここでは登録しない
     // ExecutionController が直接処理する
+
+    // 検索/置換 モードタブ・Grep検索（Task 0604.4）
+    this.setupModeUI();
 
     // モーダル制御
     this.setupModalListeners();
@@ -328,7 +335,7 @@ class UIController {
     }
 
     // 結果モーダル
-    const modalClose = document.querySelector('.modal-close');
+    const modalClose = document.querySelector('#resultModal .modal-close');
     const closeResultButton = document.getElementById('closeResultButton');
 
     if (modalClose) {
@@ -1610,6 +1617,246 @@ class UIController {
     } catch (error) {
       console.error('❌ Stop failed:', error);
     }
+  }
+
+  // ============================================
+  // 検索/置換 モード・Grep検索（Task 0604.4）
+  // ============================================
+
+  /**
+   * 検索/置換 モードUIの初期化
+   */
+  setupModeUI() {
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+      tab.addEventListener('click', () => this.setMode(tab.dataset.mode));
+    });
+    const grepButton = document.getElementById('grepButton');
+    if (grepButton) {
+      grepButton.addEventListener('click', () => this.handleGrepSearch());
+    }
+    const grepClose = document.getElementById('grepCloseButton');
+    if (grepClose) {
+      grepClose.addEventListener('click', () => this.closeGrepModal());
+    }
+    const grepModalClose = document.getElementById('grepModalClose');
+    if (grepModalClose) {
+      grepModalClose.addEventListener('click', () => this.closeGrepModal());
+    }
+    const grepExport = document.getElementById('grepExportButton');
+    if (grepExport) {
+      grepExport.addEventListener('click', () => this.handleGrepExport());
+    }
+    const grepCopy = document.getElementById('grepCopyButton');
+    if (grepCopy) {
+      grepCopy.addEventListener('click', () => this.handleGrepCopy());
+    }
+    this.setMode(this.mode || 'replace');
+  }
+
+  /**
+   * モード切替（'replace' | 'search'）
+   */
+  setMode(mode) {
+    if (mode !== 'search' && mode !== 'replace') {
+      return;
+    }
+    this.mode = mode;
+    document.body.dataset.mode = mode;
+    document.querySelectorAll('.mode-tab').forEach(tab => {
+      tab.classList.toggle('mode-tab-active', tab.dataset.mode === mode);
+    });
+    // モード切替時は検索結果モーダルを閉じる
+    this.closeGrepModal();
+    // ルール見出しをモードに合わせる
+    const heading = document.getElementById('rules-heading');
+    if (heading) {
+      const iconHtml = heading.querySelector('.section-icon')?.outerHTML || '';
+      heading.innerHTML = `${iconHtml} ${mode === 'search' ? 'Search Patterns' : 'Replacement Rules'}`;
+    }
+  }
+
+  /**
+   * 有効な検索パターン（ルールのFrom）を取得
+   */
+  getActivePatterns() {
+    return this.replacementRules.filter(rule => rule.enabled && rule.from).map(rule => rule.from);
+  }
+
+  /**
+   * Grep検索実行
+   */
+  async handleGrepSearch() {
+    if (this.isGrepping) {
+      return;
+    }
+    const folders = this.getSelectedFolderPaths();
+    if (folders.length === 0) {
+      this.showError('検索エラー', 'フォルダを選択してください');
+      return;
+    }
+    const patterns = this.getActivePatterns();
+    if (patterns.length === 0) {
+      this.showError('検索エラー', '検索文字列を入力してください');
+      return;
+    }
+
+    const resultsEl = document.getElementById('grepResults');
+    const countEl = document.getElementById('grepCount');
+    this.showGrepModal();
+    if (resultsEl) {
+      resultsEl.textContent = '';
+    }
+    if (countEl) {
+      countEl.textContent = '検索中…';
+    }
+
+    this.isGrepping = true;
+    window.electronAPI.removeGrepProgressListener();
+    window.electronAPI.onGrepProgress(p => {
+      if (countEl) {
+        countEl.textContent = `検索中… ${p.scannedFiles}/${p.totalFiles} ファイル, ${p.totalMatches} 件`;
+      }
+    });
+
+    try {
+      const result = await window.electronAPI.grepSearch({
+        targetFolders: folders,
+        extensions: this.getSelectedExtensions().join(','),
+        patterns,
+        caseSensitive: true,
+      });
+      if (result.success) {
+        this.renderGrepResults(result.results, result.stats);
+      } else {
+        this.closeGrepModal();
+        this.showError('検索失敗', result.error || '不明なエラー');
+      }
+    } catch (error) {
+      this.closeGrepModal();
+      this.showError('検索失敗', error.message);
+    } finally {
+      this.isGrepping = false;
+      window.electronAPI.removeGrepProgressListener();
+    }
+  }
+
+  /**
+   * Grep検索結果を描画（"path:line:col: …context…" ・マッチをハイライト）
+   * <pre>内なのでドラッグ/Cmd+Aで綺麗にコピー可能（<mark>はテキストを増やさない）
+   */
+  renderGrepResults(results, stats) {
+    this.lastGrepResults = results || [];
+    this.lastGrepStats = stats || {};
+    const resultsEl = document.getElementById('grepResults');
+    const countEl = document.getElementById('grepCount');
+    const esc = s =>
+      String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+
+    if (countEl) {
+      const base = `${stats.totalMatches} 件 / ${stats.matchedFiles} ファイル`;
+      countEl.textContent = stats.truncated ? `${base}（先頭${results.length}件を表示）` : base;
+    }
+
+    if (!results || results.length === 0) {
+      if (resultsEl) {
+        resultsEl.textContent = '（一致なし）';
+      }
+      return;
+    }
+
+    const html = results
+      .map(r => {
+        const prefix = `${r.path}:${r.line}:${r.col}: `;
+        const t = r.text || '';
+        const a = t.slice(0, r.hlStart);
+        const hit = t.slice(r.hlStart, r.hlStart + r.hlLen);
+        const b = t.slice(r.hlStart + r.hlLen);
+        return `${esc(prefix)}${esc(a)}<mark>${esc(hit)}</mark>${esc(b)}`;
+      })
+      .join('\n');
+    if (resultsEl) {
+      resultsEl.innerHTML = html;
+    }
+  }
+
+  /** Grep結果のプレーンテキスト（表示と同一・コピー用） */
+  buildGrepText() {
+    return (this.lastGrepResults || [])
+      .map(r => `${r.path}:${r.line}:${r.col}: ${r.text}`)
+      .join('\n');
+  }
+
+  /** Grep結果のCSV（RFC4180エスケープ） */
+  buildGrepCsv() {
+    const esc = c => `"${String(c).replace(/"/g, '""')}"`;
+    const header = ['File Path', 'Line', 'Column', 'Context'].map(esc).join(',');
+    const rows = (this.lastGrepResults || []).map(r =>
+      [r.path, r.line, r.col, r.text].map(esc).join(',')
+    );
+    return [header, ...rows].join('\n');
+  }
+
+  /** 検索結果をクリップボードにコピー */
+  async handleGrepCopy() {
+    const text = this.buildGrepText();
+    if (!text) {
+      this.showError('コピー失敗', '検索結果がありません');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      this.showSuccess('コピー完了', '検索結果をクリップボードにコピーしました');
+    } catch (error) {
+      this.showError('コピー失敗', error.message);
+    }
+  }
+
+  /** 検索結果をCSVでエクスポート */
+  handleGrepExport() {
+    if (!this.lastGrepResults || this.lastGrepResults.length === 0) {
+      this.showError('エクスポート失敗', '検索結果がありません');
+      return;
+    }
+    const ISO_LEN = 19; // YYYY-MM-DDTHH:MM:SS
+    const stamp = new Date().toISOString().slice(0, ISO_LEN).replace(/:/g, '-');
+    this.downloadTextFile(`grep-results-${stamp}.csv`, this.buildGrepCsv(), 'text/csv');
+    this.showSuccess('エクスポート完了', '検索結果をCSVで保存しました');
+  }
+
+  /** テキストをファイルとしてダウンロード */
+  downloadTextFile(filename, content, mime) {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /** 検索結果モーダルを表示 */
+  showGrepModal() {
+    const modal = document.getElementById('grepResultModal');
+    if (!modal) {
+      return;
+    }
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => modal.classList.add('show'));
+  }
+
+  /** 検索結果モーダルを閉じる（実行中の検索は中断） */
+  closeGrepModal() {
+    if (this.isGrepping) {
+      window.electronAPI.cancelGrep();
+    }
+    const modal = document.getElementById('grepResultModal');
+    if (!modal) {
+      return;
+    }
+    modal.classList.remove('show');
+    setTimeout(() => modal.classList.add('hidden'), 300);
   }
 
 }

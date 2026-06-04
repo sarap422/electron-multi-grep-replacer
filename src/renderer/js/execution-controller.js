@@ -48,7 +48,7 @@ class ExecutionController {
       resultSummary: document.getElementById('resultSummary'),
       completionTime: document.getElementById('completionTime'),
       resultDetails: document.getElementById('resultDetails'),
-      modalClose: document.querySelector('.modal-close'),
+      modalClose: document.querySelector('#resultModal .modal-close'),
       closeResultButton: document.getElementById('closeResultButton'),
       exportResultsButton: document.getElementById('exportResultsButton'),
       copySummaryButton: document.getElementById('copySummaryButton'),

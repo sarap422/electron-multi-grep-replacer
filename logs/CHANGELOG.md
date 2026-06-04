@@ -1,5 +1,31 @@
 # CHANGELOG.md - Multi Grep Replacer 実装記録
 
+## [Task 0604.4] 検索（Grep）機能の追加 - 2026-06-04
+
+### 🎯 Task完了成果
+**Task 0604.4: feat: Grep内容検索機能の追加（検索/置換タブ切替）→ ✅完了**
+
+### Added
+- **Grep内容検索機能**: 複数フォルダ・拡張子・除外を対象にファイル内容をリテラル検索
+- **新規 `src/main/grep-engine.js`**: 内容検索エンジン（`extractContext`/`findMatches`/`search`）。複数パターンOR・進捗・キャンセル・件数上限(既定10000)・バイナリ/巨大ファイルskip
+- **新規 `tests/grep-engine.test.js`**: 10ケースの単体テスト（`node tests/grep-engine.test.js` で実行）
+- IPC `grep-search`/`grep-cancel`（`main.js`）、preload `grepSearch`/`onGrepProgress`/`cancelGrep`
+- **検索/置換タブ**（検索=左・置換=右、起動時デフォルト=置換）。検索モードはTo入力を隠しFromを検索語に流用（複数語OR）
+- 検索結果は**置換と同じモーダル**で表示（`path:line:col: …context…`・マッチ`<mark>`ハイライト・選択コピー可能な`<pre>`）＋ [Export Results(CSV)] [Copy Summary] [Close]
+
+### 設計のポイント（マッチ表示）
+- **マッチ中心の文字ウィンドウ**（既定120字）を表示。短い行は全体、min化された長い1行は前後 `…` 付きウィンドウ → 巨大1行のダンプを回避。1マッチ=1行
+
+### Changed
+- ボタン共通スタイルに `display:inline-flex; justify-content/align-items:center` を追加（ラベル中央寄せ）
+- `.modal-close` セレクタを `#resultModal` にスコープ化（Grep結果モーダル追加に伴う `.modal-close` 競合を回避）
+
+### Test / Build
+- ✅ 10/10 単体テスト合格、全ファイル `node --check` 通過、実機で検索/コピー/CSV/モーダルを確認
+- ✅ バージョン 1.0.4 → 1.0.5、`MultiGrepReplacer-1.0.5.dmg`(139MB) / `-Setup-1.0.5.exe`(67MB) 生成
+
+---
+
 ## [Task 0604.3] リザルト表示の修正・見直し - 2026-06-03
 
 ### 🎯 Task完了成果

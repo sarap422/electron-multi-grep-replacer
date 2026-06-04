@@ -334,6 +334,41 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.removeAllListeners('search-progress');
   },
 
+  // Grep内容検索 API
+  /**
+   * Grep内容検索
+   * @param {Object} config - { targetFolders, extensions, pattern, caseSensitive }
+   * @returns {Promise<Object>} { success, results, stats }
+   */
+  grepSearch: async config => {
+    try {
+      return await ipcRenderer.invoke('grep-search', config);
+    } catch (error) {
+      console.error('❌ Grep search failed:', error);
+      throw error;
+    }
+  },
+
+  /** Grep検索キャンセル */
+  cancelGrep: async () => {
+    try {
+      return await ipcRenderer.invoke('grep-cancel');
+    } catch (error) {
+      console.error('❌ Cancel grep failed:', error);
+      throw error;
+    }
+  },
+
+  /** Grep進捗イベントリスナー設定 */
+  onGrepProgress: callback => {
+    ipcRenderer.on('grep-progress', (event, progressData) => callback(progressData));
+  },
+
+  /** Grep進捗イベントリスナー削除 */
+  removeGrepProgressListener: () => {
+    ipcRenderer.removeAllListeners('grep-progress');
+  },
+
   // 置換エンジン API
   /**
    * 複数ファイル一括置換処理

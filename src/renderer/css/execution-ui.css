@@ -727,3 +727,89 @@
 [data-theme='dark'] .result-modal {
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
 }
+
+/* =============================================================================
+   検索/置換 モードタブ・Grep検索結果（Task 0604.4）
+   ============================================================================= */
+
+.mode-tabs {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 16px;
+  border-bottom: 1px solid var(--border-secondary);
+}
+
+.mode-tab {
+  padding: 10px 22px;
+  border: 1px solid transparent;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mode-tab:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.mode-tab.mode-tab-active {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-secondary);
+  border-bottom-color: var(--bg-primary);
+}
+
+/* 検索モード: 置換(To)入力と矢印を隠し、Fromを広げる */
+body[data-mode='search'] .rule-arrow,
+body[data-mode='search'] .rule-fields > .rule-field-group:last-of-type {
+  display: none;
+}
+body[data-mode='search'] .rule-fields > .rule-field-group:first-of-type {
+  flex: 1;
+}
+
+/* モードごとの実行ボタン表示切替 */
+body[data-mode='replace'] #grepButton {
+  display: none;
+}
+body[data-mode='search'] #executeButton {
+  display: none;
+}
+
+/* 検索結果セクション */
+.search-results-section.hidden {
+  display: none;
+}
+.search-results-section .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.search-result-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-left: 8px;
+}
+
+/* マッチのハイライト（<mark>はテキストを増やさないのでコピーは綺麗なまま） */
+.result-text mark {
+  background: #fde68a;
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+/* 検索結果のアクション（Export / Copy） */
+.search-results-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}

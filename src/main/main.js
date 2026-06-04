@@ -6,6 +6,7 @@ const ConfigManager = require('./config-manager');
 const FileOperations = require('./file-operations');
 const FileSearchEngine = require('./file-search-engine');
 const ReplacementEngine = require('./replacement-engine');
+const GrepEngine = require('./grep-engine');
 const DebugLogger = require('./debug-logger');
 const PerformanceOptimizer = require('./performance-optimizer');
 const MemoryManager = require('./memory-manager');
@@ -25,6 +26,7 @@ class MultiGrepReplacerApp {
     this.initializationTracker = 'app-initialization';
     this.fileSearchEngine = new FileSearchEngine();
     this.replacementEngine = new ReplacementEngine();
+    this.grepEngine = new GrepEngine();
     this.performanceOptimizer = null; // 初期化後に設定
     this.memoryManager = null; // 初期化後に設定
 
@@ -1021,6 +1023,83 @@ class MultiGrepReplacerApp {
           config,
         });
         await DebugLogger.endPerformance(operationId, { success: false });
+        return { success: false, error: error.message };
+      }
+    });
+
+    // Grep内容検索
+    ipcMain.handle('grep-search', async (event, config) => {
+      const operationId = 'ipc-grep-search';
+      await DebugLogger.startPerformance(operationId);
+
+      try {
+        const targetFolders =
+          config.targetFolders && config.targetFolders.length > 0
+            ? config.targetFolders
+            : config.targetFolder
+            ? [config.targetFolder]
+            : [];
+
+        const extensionsArray = config.extensions
+          ? config.extensions
+              .split(',')
+              .map(ext => ext.trim())
+              .filter(Boolean)
+          : [];
+        const searchOptions = {
+          excludePatterns: ['node_modules/**', '.git/**', 'dist/**', 'build/**'],
+          ...config.options,
+        };
+
+        // 1. 対象ファイル列挙（置換と同じ FileSearchEngine を使用）
+        let allFiles = [];
+        for (const folder of targetFolders) {
+          const searchResult = await this.fileSearchEngine.searchFiles(
+            folder,
+            extensionsArray,
+            searchOptions
+          );
+          if (searchResult?.files) {
+            allFiles = allFiles.concat(searchResult.files);
+          }
+        }
+        const filePaths = allFiles.map(file => file.path || file);
+
+        // 2. 進捗通知
+        this.grepEngine.removeAllListeners('progress');
+        this.grepEngine.on('progress', progressData => {
+          event.sender.send('grep-progress', progressData);
+        });
+
+        // 3. Grep実行
+        const { results, stats } = await this.grepEngine.search(
+          filePaths,
+          config.patterns || config.pattern,
+          { caseSensitive: config.caseSensitive !== false }
+        );
+
+        await DebugLogger.endPerformance(operationId, {
+          success: true,
+          totalMatches: stats.totalMatches,
+          matchedFiles: stats.matchedFiles,
+        });
+        return { success: true, results, stats };
+      } catch (error) {
+        await DebugLogger.logError(error, {
+          operation: 'grep-search',
+          component: 'IPC-Handler',
+        });
+        await DebugLogger.endPerformance(operationId, { success: false });
+        return { success: false, error: error.message };
+      }
+    });
+
+    // Grep検索キャンセル
+    ipcMain.handle('grep-cancel', async () => {
+      try {
+        this.grepEngine.cancel();
+        return { success: true };
+      } catch (error) {
         return { success: false, error: error.message };
       }
     });

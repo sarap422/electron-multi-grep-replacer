@@ -714,3 +714,22 @@ if (!this.ruleManager) {
 ### 🛡️ 予防策
 - 「表示・コピー・エクスポート」は必ず**同一データ源（実結果）**から生成する。機能ごとに別ロジック/モックを持たせない
 - モック/フォールバックの偽データは本番経路に残さない（実装完了時に撤去）
+
+---
+
+## [Task 0604.4] - 2026-06-04: 結果モーダル追加で .modal-close が競合
+
+### ❌ 症状
+- 検索結果モーダル（新規 `#grepResultModal`）を置換結果モーダルより前に追加したところ、置換モーダルの「×」閉じるボタンが効かなくなる懸念
+
+### 🔍 原因
+- `execution-controller.js` と `ui-controller.js` が結果モーダルの×を `document.querySelector('.modal-close')` で取得していた
+- `querySelector` は**最初の1つ**を返すため、`.modal-close` を持つモーダルが増えると、DOM順で先に来た新モーダルの×を拾い、本来の置換モーダルの×が未バインドになる
+
+### ✅ 解決
+- 置換モーダル用のセレクタを所属IDでスコープ: `document.querySelector('#resultModal .modal-close')`
+- 新モーダル(Grep)の×は要素ID（`#grepModalClose`）で個別にバインド
+
+### 🛡️ 予防策
+- 複数インスタンスが存在し得るクラス（`.modal-close` 等）を `querySelector('.class')` で1つだけ取らない
+- 必ず所属コンテナのIDでスコープ（`#owner .class`）するか、要素IDを直接指定する

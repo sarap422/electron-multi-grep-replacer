@@ -24,7 +24,7 @@
     "
     />
   </head>
-  <body class="theme-light">
+  <body class="theme-light" data-mode="replace">
     <div id="app" class="app-container">
       <!-- アプリヘッダー -->
       <header class="app-header">
@@ -36,6 +36,12 @@
 
       <!-- メインコンテンツ -->
       <main class="main-content">
+        <!-- 検索/置換 モードタブ -->
+        <div class="mode-tabs" role="tablist" aria-label="モード切り替え">
+          <button type="button" class="mode-tab" data-mode="search" role="tab">🔍 検索</button>
+          <button type="button" class="mode-tab" data-mode="replace" role="tab">✏️ 置換</button>
+        </div>
+
         <!-- ターゲットフォルダ選択（複数対応） -->
         <section class="target-folder-section" aria-labelledby="folder-heading">
           <h2 id="folder-heading" class="section-title">
@@ -243,8 +249,50 @@
               <span class="button-icon">🚀</span>
               Execute Replacement
             </button>
+            <button id="grepButton" class="primary-button execute-button">
+              <span class="button-icon">🔍</span>
+              検索
+            </button>
           </div>
         </section>
+
+        <!-- 検索結果モーダル（Grep・初期非表示。置換の結果モーダルとUI統一） -->
+        <div
+          id="grepResultModal"
+          class="modal hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="grep-result-title"
+        >
+          <div class="modal-content result-modal">
+            <button class="modal-close" id="grepModalClose" aria-label="Close">&times;</button>
+            <h3 id="grep-result-title" class="modal-title">
+              <span class="success-icon">🔍</span>
+              検索結果
+            </h3>
+            <div class="result-summary">
+              <span class="summary-icon">📊</span>
+              <span id="grepCount">0 件 / 0 ファイル</span>
+            </div>
+            <div class="result-details">
+              <pre class="result-text" id="grepResults"></pre>
+            </div>
+            <div class="modal-actions">
+              <button id="grepExportButton" class="secondary-button">
+                <span class="button-icon">📤</span>
+                Export Results
+              </button>
+              <button id="grepCopyButton" class="secondary-button">
+                <span class="button-icon">📋</span>
+                Copy Summary
+              </button>
+              <button id="grepCloseButton" class="primary-button">
+                <span class="button-icon">✅</span>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- 進捗モーダル（初期非表示） -->
         <div id="progressModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="progress-title">
