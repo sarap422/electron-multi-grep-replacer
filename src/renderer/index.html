@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi Grep Replacer</title>
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/template-manager.css" />
+    <link rel="stylesheet" href="css/execution-ui.css" />
+    <link rel="stylesheet" href="css/themes.css" />
+    <link rel="stylesheet" href="css/animations.css" />
+
+    <!-- セキュリティヘッダー -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src 'self' 'unsafe-inline';
+        style-src 'self' 'unsafe-inline';
+        img-src 'self' data:;
+        connect-src 'self';
+        font-src 'self';
+    "
+    />
+  </head>
+  <body class="theme-light" data-mode="replace">
+    <div id="app" class="app-container">
+      <!-- アプリヘッダー -->
+      <header class="app-header">
+        <h1 class="app-title">
+          <span class="app-icon">🔍</span>
+          Multi Grep Replacer
+        </h1>
+      </header>
+
+      <!-- メインコンテンツ -->
+      <main class="main-content">
+        <!-- 検索/置換 モードタブ -->
+        <div class="mode-tabs" role="tablist" aria-label="モード切り替え">
+          <button type="button" class="mode-tab" data-mode="search" role="tab">🔍 検索</button>
+          <button type="button" class="mode-tab" data-mode="replace" role="tab">✏️ 置換</button>
+        </div>
+
+        <!-- 対象オプション（検索/置換 共通） -->
+        <div class="target-options" role="group" aria-label="対象オプション">
+          <label class="target-option">
+            <input type="checkbox" id="includeFileName" />
+            ファイル名を対象に含める
+          </label>
+          <label class="target-option">
+            <input type="checkbox" id="includeExtension" />
+            拡張子を対象に含める
+          </label>
+          <label class="target-option">
+            <input type="checkbox" id="interpretEscapes" />
+            \n\t を有効にする
+          </label>
+        </div>
+
+        <!-- ターゲットフォルダ選択（複数対応） -->
+        <section class="target-folder-section" aria-labelledby="folder-heading">
+          <h2 id="folder-heading" class="section-title">
+            <span class="section-icon">📁</span>
+            Target Folders
+          </h2>
+          <div class="folders-container" id="foldersContainer">
+            <div class="folders-list" id="foldersList">
+              <!-- 初期フォルダ -->
+              <div class="folder-item" data-folder-id="folder-1">
+                <div class="folder-input-group">
+                  <div class="folder-input-wrapper" id="folderDropZone-1">
+                    <input
+                      type="text"
+                      class="folder-input folder-path-input"
+                      placeholder="/path/to/project/folder"
+                      aria-label="Target folder path"
+                      title="Enter folder path or use Browse button"
+                    />
+                    <div class="drop-overlay">
+                      <span class="drop-icon">📂</span>
+                      <span class="drop-text">Drop folder here</span>
+                    </div>
+                  </div>
+                  <button class="primary-button browse-button folder-browse-btn" title="Browse...">
+                    <span class="button-icon">📂</span>
+                    Browse...
+                  </button>
+                  <button class="icon-button folder-delete" title="フォルダを削除" aria-label="Delete folder">
+                    <span>🗑️</span>
+                  </button>
+                </div>
+                <div class="folder-info">
+                  <span class="info-text folder-status">No folder selected</span>
+                </div>
+              </div>
+            </div>
+
+            <button id="addFolderButton" class="add-folder-button">
+              <span class="button-icon">➕</span>
+              Add new folder
+            </button>
+          </div>
+        </section>
+
+        <!-- ファイル拡張子フィルタ -->
+        <section class="extensions-section" aria-labelledby="extensions-heading">
+          <h2 id="extensions-heading" class="section-title">
+            <span class="section-icon">🔍</span>
+            File Extensions
+            <span class="section-subtitle">(comma-separated, blank = all files)</span>
+          </h2>
+          <div class="extensions-input-group">
+            <input
+              type="text"
+              id="fileExtensions"
+              class="extensions-input"
+              placeholder="(all files)"
+              value=".html,.css,.js,.jsx,.tsx,.vue,.php"
+              aria-label="File extensions filter"
+            />
+            <div class="extensions-presets">
+              <button class="preset-button" data-preset="web">Web</button>
+              <button class="preset-button" data-preset="docs">Docs</button>
+              <button class="preset-button" data-preset="code">Code</button>
+              <button class="preset-button" data-preset="all">All</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 置換ルール管理 -->
+        <section class="replacement-rules-section" aria-labelledby="rules-heading">
+          <div class="section-header">
+            <h2 id="rules-heading" class="section-title">
+              <span class="section-icon">⚙️</span>
+              Replacement Rules
+            </h2>
+            <div class="section-controls" style="display: none">
+              <!-- テンプレート機能は将来の実装予定 -->
+              <select id="templateSelect" class="template-select" aria-label="Rule templates">
+                <option value="">📋 Templates ▼</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="rules-container" id="rulesContainer">
+            <div class="rules-list" id="rulesList">
+              <!-- 初期ルール -->
+              <div class="rule-item" data-rule-id="rule-1">
+                <div class="rule-controls">
+                  <input
+                    type="checkbox"
+                    class="rule-checkbox"
+                    checked
+                    aria-label="Enable rule"
+                    title="ルールを有効/無効切り替え"
+                  />
+                </div>
+                <div class="rule-fields">
+                  <div class="rule-field-group">
+                    <label class="rule-label">From:</label>
+                    <input
+                      type="text"
+                      class="rule-from"
+                      placeholder="検索文字列"
+                      value="old-class"
+                      aria-label="Search text"
+                      title="置換前の文字列を入力"
+                    />
+                  </div>
+                  <div class="rule-arrow">→</div>
+                  <div class="rule-field-group">
+                    <label class="rule-label">To:</label>
+                    <input
+                      type="text"
+                      class="rule-to"
+                      placeholder="置換文字列"
+                      value="new-class"
+                      aria-label="Replace text"
+                      title="置換後の文字列を入力"
+                    />
+                  </div>
+                </div>
+                <div class="rule-actions">
+                  <button class="icon-button rule-delete" title="ルールを削除" aria-label="Delete rule">
+                    <span>🗑️</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="rule-item" data-rule-id="rule-2">
+                <div class="rule-controls">
+                  <input
+                    type="checkbox"
+                    class="rule-checkbox"
+                    checked
+                    aria-label="Enable rule"
+                    title="ルールを有効/無効切り替え"
+                  />
+                </div>
+                <div class="rule-fields">
+                  <div class="rule-field-group">
+                    <label class="rule-label">From:</label>
+                    <input
+                      type="text"
+                      class="rule-from"
+                      placeholder="検索文字列"
+                      value="oldVariable"
+                      aria-label="Search text"
+                      title="置換前の文字列を入力"
+                    />
+                  </div>
+                  <div class="rule-arrow">→</div>
+                  <div class="rule-field-group">
+                    <label class="rule-label">To:</label>
+                    <input
+                      type="text"
+                      class="rule-to"
+                      placeholder="置換文字列"
+                      value="newVariable"
+                      aria-label="Replace text"
+                      title="置換後の文字列を入力"
+                    />
+                  </div>
+                </div>
+                <div class="rule-actions">
+                  <button class="icon-button rule-delete" title="ルールを削除" aria-label="Delete rule">
+                    <span>🗑️</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <button id="addRuleButton" class="add-rule-button">
+              <span class="button-icon">➕</span>
+              Add new rule
+            </button>
+          </div>
+        </section>
+
+        <!-- プレビュー情報 -->
+        <section class="preview-section" aria-labelledby="preview-heading">
+          <h2 id="preview-heading" class="visually-hidden">Preview</h2>
+          <div class="preview-info">
+            <span class="preview-icon">📊</span>
+            <span class="preview-text">Preview: </span>
+            <span class="preview-stats" id="previewStats">
+              <span id="fileCount">0</span> files found, <span id="activeRuleCount">2</span> rules active
+            </span>
+          </div>
+        </section>
+
+        <!-- アクションボタン -->
+        <section class="actions-section" aria-label="Actions">
+          <div class="action-buttons">
+            <button id="loadConfigButton" class="secondary-button">
+              <span class="button-icon">💾</span>
+              Load Config
+            </button>
+            <button id="saveConfigButton" class="secondary-button">
+              <span class="button-icon">💾</span>
+              Save Config
+            </button>
+            <button id="executeButton" class="primary-button execute-button">
+              <span class="button-icon">🚀</span>
+              Execute Replacement
+            </button>
+            <button id="grepButton" class="primary-button execute-button">
+              <span class="button-icon">🔍</span>
+              検索
+            </button>
+          </div>
+        </section>
+
+        <!-- 検索結果モーダル（Grep・初期非表示。置換の結果モーダルとUI統一） -->
+        <div
+          id="grepResultModal"
+          class="modal hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="grep-result-title"
+        >
+          <div class="modal-content result-modal">
+            <button class="modal-close" id="grepModalClose" aria-label="Close">&times;</button>
+            <h3 id="grep-result-title" class="modal-title">
+              <span class="success-icon">🔍</span>
+              検索結果
+            </h3>
+            <div class="result-summary">
+              <span class="summary-icon">📊</span>
+              <span id="grepCount">0 件 / 0 ファイル</span>
+            </div>
+            <div class="result-details">
+              <pre class="result-text" id="grepResults"></pre>
+            </div>
+            <div class="modal-actions">
+              <button id="grepExportButton" class="secondary-button">
+                <span class="button-icon">📤</span>
+                Export Results
+              </button>
+              <button id="grepCopyButton" class="secondary-button">
+                <span class="button-icon">📋</span>
+                Copy Summary
+              </button>
+              <button id="grepCloseButton" class="primary-button">
+                <span class="button-icon">✅</span>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 進捗モーダル（初期非表示） -->
+        <div id="progressModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="progress-title">
+          <div class="modal-content progress-modal">
+            <h3 id="progress-title" class="modal-title">
+              <span class="progress-icon">🚀</span>
+              Executing Replacements...
+            </h3>
+            <div class="progress-container">
+              <div class="progress-bar-wrapper">
+                <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+              </div>
+              <div class="progress-text">
+                <span id="progressPercent">0%</span>
+                (<span id="progressCurrent">0</span>/<span id="progressTotal">0</span> files)
+              </div>
+            </div>
+            <div class="current-file">
+              <span class="file-icon">📄</span>
+              Currently processing: <span id="currentFile">-</span>
+            </div>
+            <div class="progress-stats">
+              <span class="stat-item">
+                <span class="stat-icon">⏱️</span>
+                Elapsed: <span id="elapsedTime">00:00</span>
+              </span>
+              <span class="stat-item">
+                <span class="stat-icon">📊</span>
+                Changes made: <span id="changesMade">0</span>
+              </span>
+            </div>
+            <div class="modal-actions">
+              <button id="pauseButton" class="secondary-button">
+                <span class="button-icon">⏸️</span>
+                Pause
+              </button>
+              <button id="stopButton" class="danger-button">
+                <span class="button-icon">⏹️</span>
+                Stop
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 結果モーダル（初期非表示） -->
+        <div id="resultModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="result-title">
+          <div class="modal-content result-modal">
+            <button class="modal-close" aria-label="Close">&times;</button>
+            <h3 id="result-title" class="modal-title">
+              <span class="success-icon">✅</span>
+              Replacement Completed Successfully!
+            </h3>
+            <div class="result-summary">
+              <span class="summary-icon">📊</span>
+              Summary: <span id="resultSummary">0 files modified with 0 total changes</span>
+            </div>
+            <div class="result-time">
+              <span class="time-icon">⏱️</span>
+              Completed in: <span id="completionTime">00:00</span>
+            </div>
+            <div class="result-details" id="resultDetails">
+              <!-- 動的に結果が挿入される -->
+            </div>
+            <div class="modal-actions">
+              <button id="exportResultsButton" class="secondary-button">
+                <span class="button-icon">📤</span>
+                Export Results
+              </button>
+              <button id="copySummaryButton" class="secondary-button">
+                <span class="button-icon">📋</span>
+                Copy Summary
+              </button>
+              <button id="closeResultButton" class="primary-button">
+                <span class="button-icon">✅</span>
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- フッター -->
+      <footer class="app-footer">
+        <div class="footer-content">
+          <span class="footer-text">UI応答性: <strong id="responseStatus">✅ Good</strong></span>
+          <div class="performance-monitor" id="performanceMonitor">
+            <span class="monitor-label">Last response:</span>
+            <span id="responseTime" class="response-time good">--ms</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ツールチップコンテナ -->
+    <div id="tooltip" class="tooltip hidden" role="tooltip"></div>
+
+    <!-- JavaScript - 重要: 依存関係の順序を保つ -->
+    <script src="js/app.js"></script>
+    <script src="js/replacement-ui.js"></script>
+    <script src="js/template-manager.js"></script>
+    <script src="js/execution-controller.js"></script>
+    <script src="js/ui-controller.js"></script>
+    <script src="js/performance-monitor.js"></script>
+    <script src="js/theme-switcher.js"></script>
+  </body>
+</html>

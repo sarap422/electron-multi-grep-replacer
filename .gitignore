@@ -1,0 +1,520 @@
+# ━━━━━━━━━━━━━━━━━━━
+# .gitignore
+# ━━━━━━━━━━━━━━━━━━━
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Claude, Settings
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+.claude
+*.claude
+claude.*
+*.claude.*
+*_claude.*
+*-claude.*
+*~claude.*
+CLAUDE.*
+claude/
+.claude/
+~claude/
+claudedocs/
+.map
+.serena/
+base.yml
+base.yml.csv
+config.py
+settings.local.json
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Security & Private Information (重要！)
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# 環境変数ファイル
+.env
+*.env
+env.*
+*.env.*
+*_env.*
+*-env.*
+*~env.*
+.env.*.local
+.env.local
+env/
+envs/
+.env/
+.envs/
+~env/
+~envs/
+!.env.example
+
+# 認証情報
+.npmrc
+.yarnrc
+
+# 秘密鍵・証明書
+*.cert
+*.crt
+*.key
+*.p12
+*.pem
+*.pfx
+*.sql
+*.sql.gz
+
+# パスワード・トークン
+.token
+*.token
+token.*
+*.token.*
+*_token.*
+*-token.*
+*~token.*
+token/
+tokens/
+.token/
+.tokens/
+~token/
+~tokens/
+.credentials
+*.credentials
+credentials.*
+*.credentials.*
+*_credentials.*
+*-credentials.*
+*~credentials.*
+.secrets
+*.secrets
+secrets.*
+*.secrets.*
+*_secrets.*
+*-secrets.*
+*~secrets.*
+aws_access_key_id
+google-service-account.json
+id_rsa
+id_ed25519
+wp-config.*
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Personal Information
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# 個人メモ・ToDo
+TODO.md
+NOTES.md
+PRIVATE.md
+*-private.*
+
+# 顧客情報・連絡先
+contact/
+contacts/
+.contact/
+.contacts/
+~contact/
+~contacts/
+client/
+clients/
+.client/
+.clients/
+~client/
+~clients/
+customer*/
+.customer*/
+~customer*/
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# データベース
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+*.db
+db.sqlite3
+dump.sql
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Git, npm
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+.git/
+gitignore/
+.gitignore/
+~gitignore/
+gitignone/
+.gitignone/
+~gitignone/
+npmignore/
+.npmignore/
+~npmignore/
+npmignone/
+.npmignone/
+~npmignone/
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Node & 依存関係
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+node_modules/
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
+__pycache__/
+*.pyc
+vendor/
+vendors/
+.vendor/
+.vendors/
+~vendor/
+~vendors/
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Build & Distribution
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+dist/
+dists/
+.dist/
+.dists/
+~dist/
+~dists/
+build/
+builds/
+.build/
+.builds/
+~build/
+~builds/
+
+# Rust
+target/
+targets/
+.target/
+.targets/
+~target/
+~targets/
+src-tauri/target/
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# OS Files,
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+._*
+.DS_Store
+.DS_Store?
+.Spotlight-V100
+.Trashes
+Desktop.ini
+ehthumbs.db
+Thumbs.db
+
+# macOS のフォルダアイコン
+Icon*
+!icons/
+!icons/*.png
+!icons/*.svg
+icons/*
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Temporary & Conflicted
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Temporary files
+.cache
+*.cache
+cache.*
+*.cache.*
+*_cache.*
+*-cache.*
+*~cache.*
+cache/
+caches/
+.cache/
+.caches/
+~cache/
+~caches/
+.tmp
+*.tmp
+tmp.*
+*.tmp.*
+*_tmp.*
+*-tmp.*
+*~tmp.*
+tmp/
+tmps/
+.tmp/
+.tmps/
+~tmp/
+~tmps/
+*.temp
+temp/
+.temp
+*.temp
+temp.*
+*.temp.*
+*_temp.*
+*-temp.*
+*~temp.*
+temp/
+temps/
+.temp/
+.temps/
+~temp/
+~temps/
+
+# Conflicted files
+*\[conflicted*
+*\(conflicted*
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Development & Testing
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# デバッグ・ログ
+.debug
+*.debug
+debug.*
+*.debug.*
+*_debug.*
+*-debug.*
+*~debug.*
+debug/
+debugs/
+.debug/
+.debugs/
+~debug/
+~debugs/
+.log
+*.log
+log.*
+*.log.*
+*_log.*
+*-log.*
+*~log.*
+log/
+logs/
+.log/
+.logs/
+~log/
+~logs/
+deblog/
+deblogs/
+.deblog/
+.deblogs/
+~deblog/
+~deblogs/
+error_log
+
+# テストファイル
+coverage/
+test-results/
+
+# レビューファイル
+*review.txt
+review*.txt
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Outputs（出力ファイル）
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+output/
+outputs/
+.output/
+.outputs/
+~output/
+~outputs/
+record/
+records/
+.record/
+.records/
+~record/
+~records/
+report/
+reports/
+.report/
+.reports/
+~report/
+~reports/
+result/
+results/
+.result/
+.results/
+~result/
+~results/
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Working（作業用フォルダ）
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+
+working/
+workings/
+.working/
+.workings/
+~working/
+~workings/
+work/
+works/
+.work/
+.works/
+~work/
+~works/
+vanguard/
+vanguards/
+.vanguard/
+.vanguards/
+~vanguard/
+~vanguards/
+past/
+pasts/
+.past/
+.pasts/
+~past/
+~pasts/
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# References（参考情報）
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+ancient/
+ancients/
+.ancient/
+.ancients/
+~ancient/
+~ancients/
+*_ref
+*~ref
+*.ref
+ref/
+refs/
+.ref/
+.refs/
+~ref/
+~refs/
+reference/
+references/
+.reference/
+.references/
+~reference/
+~references/
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Backup Files
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+.backup
+*.backup
+backup.*
+*.backup.*
+*_backup.*
+*-backup.*
+*~backup.*
+backup/
+backups/
+.backup/
+.backups/
+~backup/
+~backups/
+.bak
+*.bak
+bak.*
+*.bak.*
+*_bak.*
+*-bak.*
+*~bak.*
+bak/
+baks/
+.bak/
+.baks/
+~bak/
+~baks/
+.old
+*.old
+old.*
+*.old.*
+*_old.*
+*-old.*
+*~old.*
+old/
+olds/
+.old/
+.olds/
+~old/
+~olds/
+.BACKUP
+*.BACKUP
+BACKUP.*
+*.BACKUP.*
+*_BACKUP.*
+*-BACKUP.*
+*~BACKUP.*
+BACKUP/
+BACKUPS/
+.BACKUP/
+.BACKUPS/
+~BACKUP/
+~BACKUPS/
+.BAK
+*.BAK
+BAK.*
+*.BAK.*
+*_BAK.*
+*-BAK.*
+*~BAK.*
+BAK/
+BAKS/
+.BAK/
+.BAKS/
+~BAK/
+~BAKS/
+.OLD
+*.OLD
+OLD.*
+*.OLD.*
+*_OLD.*
+*-OLD.*
+*~OLD.*
+OLD/
+OLDS/
+.OLD/
+.OLDS/
+~OLD/
+~OLDS/
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Archives
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Editor & IDE
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+.prettierignore
+.husky
+
+
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# Font-Specific
+# ────────────── ༚༶⊰⟡⊱༶༚༺
+# フォント生成の中間ファイル
+*.afm
+*.pfm
+*.inf
+
+# FontForge関連
+*.sfd.bak
+
+
+
