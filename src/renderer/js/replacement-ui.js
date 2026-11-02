@@ -483,8 +483,3 @@ class RuleManager {
 if (typeof window !== 'undefined') {
   window.RuleManager = RuleManager;
 }
-
-// エクスポート（Node.js環境対応）
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = RuleManager;
-}

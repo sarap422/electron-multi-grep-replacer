@@ -1,4 +1,4 @@
-# Multi Grep Replacer v1.1.2
+# Multi Grep Replacer v1.1.3
 
 ![メインウィンドウ](docs/images/main-window.png)
 
@@ -98,6 +98,7 @@ npm start
 ```bash
 npm test             # テスト
 npm run test:syntax  # 構文チェック
+npm run test:all     # lint・書式・構文・テストをまとめて実行
 npm run build:mac    # macOS版のビルド
 npm run build:win    # Windows版のビルド
 ```

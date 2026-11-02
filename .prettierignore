@@ -1,0 +1,2 @@
+# CSS は #FFFFFF の大文字表記を保つため対象外（Prettier は小文字に変換する）
+src/renderer/css/

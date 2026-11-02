@@ -1674,7 +1674,9 @@ class UIController {
     const heading = document.getElementById('rules-heading');
     if (heading) {
       const iconHtml = heading.querySelector('.section-icon')?.outerHTML || '';
-      heading.innerHTML = `${iconHtml} ${mode === 'search' ? 'Search Patterns' : 'Replacement Rules'}`;
+      heading.innerHTML = `${iconHtml} ${
+        mode === 'search' ? 'Search Patterns' : 'Replacement Rules'
+      }`;
     }
   }
 
@@ -1865,7 +1867,6 @@ class UIController {
     modal.classList.remove('show');
     setTimeout(() => modal.classList.add('hidden'), 300);
   }
-
 }
 
 // DOM読み込み完了後にUIController初期化

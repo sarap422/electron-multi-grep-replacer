@@ -653,8 +653,3 @@ class TemplateManager {
 if (typeof window !== 'undefined') {
   window.TemplateManager = TemplateManager;
 }
-
-// エクスポート（Node.js環境対応）
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = TemplateManager;
-}

@@ -11,7 +11,7 @@
 Taskの完了条件は次の5つです。
 
 1. 失敗するテストを書いてから実装した
-2. `npm test` と `npm run test:syntax` が通る
+2. `npm run test:all` が通る
 3. パッケージ版で動作を確認した
 4. `logs/` を更新した
 5. テストが失敗している状態でコミットしていない
@@ -25,6 +25,9 @@ npm start            # アプリ起動
 npm run dev          # ログ有効で起動
 npm test             # Jest
 npm run test:syntax  # main / preload の構文チェック
+npm run lint         # ESLint（自動修正は npm run lint:fix）
+npm run format       # Prettier
+npm run test:all     # lint + 書式 + 構文 + テスト（pre-push と同じ内容）
 npm run build:mac    # dist/MultiGrepReplacer-<version>.dmg を生成
 npm run build:win    # NSISインストーラーを生成（macOSではWineが必要）
 ```
@@ -33,11 +36,21 @@ npm run build:win    # NSISインストーラーを生成（macOSではWineが�
 
 | コマンド | 理由 |
 |---|---|
-| `npm run lint` / `npm run quality` / `npm run test:all` | `.eslintrc.js`、`.prettierrc` がリポジトリにない |
 | `npm run test:e2e` | `jest.e2e.config.js` がない |
 | `npm run test:performance` | `tests/performance-test.js` がない |
 
-`.husky` もないため、pre-commit と pre-push のフックは動いていません。作業完了の確認は `npm test` と `npm run test:syntax` で行います。
+作業完了の確認は `npm run test:all` で行います。
+
+### Git フック
+
+`npm install` で husky が有効になります。
+
+| フック | 実行内容 |
+|---|---|
+| pre-commit | lint-staged（コミットする `src/` のファイルに ESLint と Prettier を適用） |
+| pre-push | `npm run test:all` |
+
+`--no-verify` でフックを飛ばさず、原因を直してください。`src/renderer/css/` は `#FFFFFF` の表記を保つため Prettier の対象外です。
 
 ## 3. テスト方針
 

@@ -4,7 +4,7 @@
 
 ## 現在の状況
 
-- 最新バージョン: v1.1.2
+- 最新バージョン: v1.1.3
 - コア機能（フォルダ指定・複数ルール置換・Grep検索・ファイル名置換・設定保存）は実装済み
 
 ## 完了したタスク
@@ -34,13 +34,12 @@
 | 1102.3 | Stop・Pauseの実装、モック実行の撤去（v1.1.2） | ✅ |
 | 1102.4 | 公開ファイルの整理、README・CLAUDE.md の書き直し | ✅ |
 | 1102.2（レビュー対応） | 遷移制限、IPC送信元の検証、不要APIの削除、CSP強化、sandbox明示 | ✅ |
+| 1102.3（開発環境） | ESLint、Prettier、husky の設定（v1.1.3） | ✅ |
 
 ## 未着手のタスク
 
 ### 開発環境
 
-- [ ] `.eslintrc.js`、`.prettierrc` を復旧し、`npm run test:all` を通す
-- [ ] `.husky` を復旧し、pre-commit と pre-push を動かす
 - [ ] `package.json` の使えないスクリプト（`test:e2e`、`test:performance`）を整理する
 - [ ] dmg のビルドで `python` の準備を不要にする
 
