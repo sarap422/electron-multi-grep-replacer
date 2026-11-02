@@ -29,15 +29,8 @@ npm run lint         # ESLint（自動修正は npm run lint:fix）
 npm run format       # Prettier
 npm run test:all     # lint + 書式 + 構文 + テスト（pre-push と同じ内容）
 npm run build:mac    # dist/MultiGrepReplacer-<version>.dmg を生成
-npm run build:win    # NSISインストーラーを生成（macOSではWineが必要）
+npm run build:win    # NSISインストーラーを生成
 ```
-
-現在、次のコマンドは使えません。
-
-| コマンド | 理由 |
-|---|---|
-| `npm run test:e2e` | `jest.e2e.config.js` がない |
-| `npm run test:performance` | `tests/performance-test.js` がない |
 
 作業完了の確認は `npm run test:all` で行います。
 
@@ -47,7 +40,7 @@ npm run build:win    # NSISインストーラーを生成（macOSではWineが�
 
 | フック | 実行内容 |
 |---|---|
-| pre-commit | lint-staged（コミットする `src/` のファイルに ESLint と Prettier を適用） |
+| pre-commit | lint-staged（コミットする `src/` と `tests/` のファイルに ESLint と Prettier を適用） |
 | pre-push | `npm run test:all` |
 
 `--no-verify` でフックを飛ばさず、原因を直してください。`src/renderer/css/` は `#FFFFFF` の表記を保つため Prettier の対象外です。

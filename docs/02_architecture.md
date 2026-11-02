@@ -43,14 +43,13 @@ src/
         ├── template-manager.js     # テンプレート・履歴
         ├── theme-switcher.js       # テーマ
         ├── performance-monitor.js  # UI応答性の計測
-        └── app.js                  # 初期の実装。一部のUI処理が残る
 config/
 ├── default.json                # 既定設定（extraResources で同梱）
 └── sample-configs/             # 設定のサンプル
 tests/                          # Jest
 ```
 
-UIの所有者は1か所に決めます。結果モーダルのボタンは `ExecutionController`、Grepモーダルは `UIController` が扱います。`app.js` と `UIController` は両方初期化されるため、新しいUIは `UIController` 側に追加します。
+UIの所有者は1か所に決めます。結果モーダルのボタンは `ExecutionController`、Grepモーダルは `UIController` が扱います。新しいUIは `UIController` 側に追加します。
 
 ## 3. 主要な処理の流れ
 

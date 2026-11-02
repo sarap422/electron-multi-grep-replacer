@@ -20,13 +20,16 @@ const isIgnored = file => {
 };
 
 describe('設定ファイル', () => {
-  test.each(['.eslintrc.js', '.prettierrc', '.prettierignore', '.husky/pre-commit', '.husky/pre-push'])(
-    '%s が存在し、git で共有される',
-    file => {
-      expect(fs.existsSync(path.join(ROOT, file))).toBe(true);
-      expect(isIgnored(file)).toBe(false);
-    }
-  );
+  test.each([
+    '.eslintrc.js',
+    '.prettierrc',
+    '.prettierignore',
+    '.husky/pre-commit',
+    '.husky/pre-push',
+  ])('%s が存在し、git で共有される', file => {
+    expect(fs.existsSync(path.join(ROOT, file))).toBe(true);
+    expect(isIgnored(file)).toBe(false);
+  });
 
   test('husky の生成物は共有しない', () => {
     expect(isIgnored('.husky/_/husky.sh')).toBe(true);
@@ -55,6 +58,18 @@ describe('package.json', () => {
 
   test('husky v8 で無効な旧形式の設定を残さない', () => {
     expect(pkg.husky).toBeUndefined();
+  });
+
+  test('存在しないファイルに依存するスクリプトを残さない', () => {
+    expect(pkg.scripts['test:e2e']).toBeUndefined();
+    expect(pkg.scripts['test:performance']).toBeUndefined();
+  });
+
+  test('lint と書式チェックは tests/ も対象にする', () => {
+    expect(pkg.scripts.lint).toContain('tests/');
+    expect(pkg.scripts['lint:check']).toContain('tests/');
+    expect(pkg.scripts['format:check']).toContain('tests/');
+    expect(pkg['lint-staged']['tests/**/*.js']).toEqual(['eslint --fix', 'prettier --write']);
   });
 
   test('dmg の背景色は小文字の hex（大文字は dmgbuild がエラーにする）', () => {

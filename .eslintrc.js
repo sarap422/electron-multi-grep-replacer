@@ -29,5 +29,9 @@ module.exports = {
       files: ['src/renderer/**/*.js'],
       env: { browser: true, es2022: true },
     },
+    {
+      files: ['tests/**/*.js'],
+      env: { node: true, jest: true, es2022: true },
+    },
   ],
 };

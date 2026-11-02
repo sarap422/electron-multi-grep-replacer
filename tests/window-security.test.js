@@ -7,11 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const { pathToFileURL } = require('url');
 
-const {
-  isAppUrl,
-  isTrustedSender,
-  applyWindowSecurity,
-} = require('../src/main/window-security');
+const { isAppUrl, isTrustedSender, applyWindowSecurity } = require('../src/main/window-security');
 
 const SRC = path.join(__dirname, '../src');
 const readSource = file => fs.readFileSync(path.join(SRC, file), 'utf8');
@@ -19,6 +15,9 @@ const readSource = file => fs.readFileSync(path.join(SRC, file), 'utf8');
 const PACKAGED_HTML =
   '/Applications/Multi Grep Replacer.app/Contents/Resources/app.asar/src/renderer/index.html';
 const toUrl = filePath => pathToFileURL(filePath).href;
+const rendererScripts = fs
+  .readdirSync(path.join(SRC, 'renderer/js'))
+  .filter(file => file.endsWith('.js'));
 
 describe('isAppUrl', () => {
   test.each([
@@ -160,8 +159,8 @@ describe('preload の公開API', () => {
   );
 
   test('設定の読み書きにパスを渡せない', () => {
-    expect(preload).toMatch(/^  loadConfig: async \(\) =>/m);
-    expect(preload).toMatch(/^  saveConfig: async config =>/m);
+    expect(preload).toMatch(/^ {2}loadConfig: async \(\) =>/m);
+    expect(preload).toMatch(/^ {2}saveConfig: async config =>/m);
   });
 
   test('サンドボックスで使えないモジュールを読み込まない', () => {
@@ -183,9 +182,24 @@ describe('レンダラー', () => {
     expect(html).not.toMatch(/\son[a-z]+=/);
   });
 
-  test('削除したAPIの呼び出しが残っていない', () => {
-    const app = readSource('renderer/js/app.js');
-    expect(app).not.toMatch(/electronAPI\.(readFile|processFiles|generatePreview)\b/);
-    expect(app).not.toMatch(/electronAPI\.saveConfig\(/);
+  test.each(rendererScripts)('削除したAPIの呼び出しが残っていない: %s', file => {
+    const script = readSource(`renderer/js/${file}`);
+    expect(script).not.toMatch(/electronAPI\.(readFile|processFiles|generatePreview)\b/);
+  });
+
+  test('設定の保存にパスを渡さない', () => {
+    for (const file of rendererScripts) {
+      expect(readSource(`renderer/js/${file}`)).not.toMatch(/electronAPI\.saveConfig\([^)\s]+,/);
+    }
+  });
+
+  test('HTMLが読み込むスクリプトと js フォルダの内容が一致する', () => {
+    const loaded = [...html.matchAll(/<script src="js\/([^"]+)"/g)].map(match => match[1]);
+    expect(loaded.sort()).toEqual([...rendererScripts].sort());
+  });
+
+  test('初期実装の app.js を読み込まない（追加ボタンの処理が UIController と重複していた）', () => {
+    expect(rendererScripts).not.toContain('app.js');
+    expect(html).not.toContain('js/app.js');
   });
 });

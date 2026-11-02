@@ -83,7 +83,6 @@ test('findMatches: min化1行に複数マッチ → 各々ウィンドウ化さ�
   assert.strictEqual(m[0].text.slice(m[0].hlStart, m[0].hlStart + m[0].hlLen), 'zaratan');
 });
 
-
 // ---- search（ファイル統合: 一時ディレクトリ） ----
 test('search: 一時ファイル統合（バイナリスキップ・複数パターンOR・行列整列）', async () => {
   const os = require('os');

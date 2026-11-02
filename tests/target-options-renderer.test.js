@@ -51,7 +51,10 @@ beforeEach(() => {
     body: { appendChild: () => {} },
   };
   const context = vm.createContext({ window, document, console, setTimeout: jest.fn() });
-  vm.runInContext(`${readRenderer('js/ui-controller.js')};window.UIController = UIController;`, context);
+  vm.runInContext(
+    `${readRenderer('js/ui-controller.js')};window.UIController = UIController;`,
+    context
+  );
   vm.runInContext(readRenderer('js/execution-controller.js'), context);
   ui = Object.create(window.UIController.prototype);
   exec = Object.create(window.ExecutionController.prototype);
@@ -277,4 +280,3 @@ describe('通知のXSS対策', () => {
     expect(element.slots[selector].textContent).toBe(payload);
   });
 });
-

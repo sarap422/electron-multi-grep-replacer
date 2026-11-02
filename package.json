@@ -17,17 +17,15 @@
     "build:production": "NODE_ENV=production electron-builder --publish=never",
     "build:mac": "electron-builder --mac",
     "build:win": "electron-builder --win",
-    "lint": "eslint src/ --ext .js",
-    "lint:fix": "eslint src/ --ext .js --fix",
-    "lint:check": "eslint src/ --ext .js --max-warnings 25",
-    "format": "prettier --write \"src/**/*.{js,html,css,json,md}\"",
-    "format:check": "prettier --check \"src/**/*.{js,html,css,json,md}\"",
-    "format:diff": "prettier --list-different \"src/**/*.{js,html,css,json,md}\"",
+    "lint": "eslint src/ tests/ --ext .js",
+    "lint:fix": "eslint src/ tests/ --ext .js --fix",
+    "lint:check": "eslint src/ tests/ --ext .js --max-warnings 25",
+    "format": "prettier --write \"src/**/*.{js,html,css,json,md}\" \"tests/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.{js,html,css,json,md}\" \"tests/**/*.js\"",
+    "format:diff": "prettier --list-different \"src/**/*.{js,html,css,json,md}\" \"tests/**/*.js\"",
     "quality": "npm run lint:check && npm run format:check",
     "quality:fix": "npm run lint:fix && npm run format",
     "test": "jest",
-    "test:e2e": "jest --config=jest.e2e.config.js",
-    "test:performance": "node tests/performance-test.js",
     "test:syntax": "node -c src/main/main.js && node -c src/preload/preload.js",
     "test:single-instance": "DEBUG_SINGLE_INSTANCE=true electron .",
     "test:all": "npm run quality && npm run test:syntax && npm run test -- --passWithNoTests",
@@ -172,6 +170,10 @@
       "prettier --write"
     ],
     "src/**/*.{html,css,json,md}": [
+      "prettier --write"
+    ],
+    "tests/**/*.js": [
+      "eslint --fix",
       "prettier --write"
     ]
   }

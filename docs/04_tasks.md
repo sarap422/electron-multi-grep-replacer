@@ -35,17 +35,17 @@
 | 1102.4 | 公開ファイルの整理、README・CLAUDE.md の書き直し | ✅ |
 | 1102.2（レビュー対応） | 遷移制限、IPC送信元の検証、不要APIの削除、CSP強化、sandbox明示 | ✅ |
 | 1102.3（開発環境） | ESLint、Prettier、husky の設定（v1.1.3） | ✅ |
+| 1102.4（リリース準備） | 未使用の `app.js` と使えないスクリプトの削除、lint対象に `tests/` を追加、Releases公開（v1.1.3） | ✅ |
 
 ## 未着手のタスク
 
 ### 開発環境
 
-- [ ] `package.json` の使えないスクリプト（`test:e2e`、`test:performance`）を整理する
 - [ ] dmg のビルドで `python` の準備を不要にする
 
-### 機能の不足
+### コードの整理
 
-- [ ] `app.js` に残る初期の実装を整理する（テスト用ボタンの処理はHTML側にボタンがなく到達しない）
+- [ ] `app.js` の削除で呼び出し元がなくなった preload のAPI（`ping`、`getAppInfo`、`searchFiles`、`getReplacementStats`、`onReplacement*` など）を整理する
 
 ### ドキュメント
 

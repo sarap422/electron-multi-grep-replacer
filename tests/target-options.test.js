@@ -88,9 +88,11 @@ describe('splitNameTarget', () => {
   });
 
   test('両方: 全体が対象', () => {
-    expect(
-      splitNameTarget('foo.html', { includeFileName: true, includeExtension: true })
-    ).toEqual({ prefix: '', target: 'foo.html', suffix: '' });
+    expect(splitNameTarget('foo.html', { includeFileName: true, includeExtension: true })).toEqual({
+      prefix: '',
+      target: 'foo.html',
+      suffix: '',
+    });
   });
 
   test('両方オフ: null', () => {
@@ -165,9 +167,11 @@ describe('ReplacementEngine: リネーム', () => {
 
   test('内容の一致がなくファイル名だけ一致しても modified に数える', async () => {
     write('old.txt', 'none');
-    const result = await new ReplacementEngine().processFiles(paths('old.txt'), [
-      rule('old', 'new'),
-    ], { includeFileName: true });
+    const result = await new ReplacementEngine().processFiles(
+      paths('old.txt'),
+      [rule('old', 'new')],
+      { includeFileName: true }
+    );
     expect(result.results[0].modified).toBe(true);
     expect(result.stats.modifiedFiles).toBe(1);
   });
@@ -200,9 +204,11 @@ describe('ReplacementEngine: リネーム', () => {
   test('既存ファイルを上書きせず、失敗として報告する', async () => {
     write('old.txt', 'old');
     write('new.txt', 'KEEP');
-    const result = await new ReplacementEngine().processFiles(paths('old.txt'), [
-      rule('old', 'new'),
-    ], { includeFileName: true });
+    const result = await new ReplacementEngine().processFiles(
+      paths('old.txt'),
+      [rule('old', 'new')],
+      { includeFileName: true }
+    );
     expect(read('new.txt')).toBe('KEEP');
     expect(read('old.txt')).toBe('new');
     const [file] = result.results;
@@ -242,9 +248,11 @@ describe('ReplacementEngine: リネーム', () => {
 
   test('大文字小文字だけの変更は同一ファイルとして許可する', async () => {
     write('foo.txt', 'x');
-    const result = await new ReplacementEngine().processFiles(paths('foo.txt'), [
-      rule('foo', 'Foo'),
-    ], { includeFileName: true });
+    const result = await new ReplacementEngine().processFiles(
+      paths('foo.txt'),
+      [rule('foo', 'Foo')],
+      { includeFileName: true }
+    );
     expect(result.results[0].renameError).toBeUndefined();
     expect(fs.readdirSync(dir)).toEqual(['Foo.txt']);
   });
@@ -302,17 +310,23 @@ describe('ReplacementEngine: エスケープ', () => {
 
   test('結果の details は入力どおりの表記を保つ（改行で行が崩れない）', async () => {
     write('a.txt', 'x\ny');
-    const result = await new ReplacementEngine().processFiles(paths('a.txt'), [rule('x\\ny', 'z')], {
-      interpretEscapes: true,
-    });
+    const result = await new ReplacementEngine().processFiles(
+      paths('a.txt'),
+      [rule('x\\ny', 'z')],
+      {
+        interpretEscapes: true,
+      }
+    );
     expect(result.results[0].details[0]).toMatchObject({ from: 'x\\ny', rule: 'x\\ny → z' });
   });
 
   test('ファイル名に改行を入れる変更は拒否する', async () => {
     write('old.txt', '');
-    const result = await new ReplacementEngine().processFiles(paths('old.txt'), [
-      rule('old', 'a\\nb'),
-    ], { includeFileName: true, interpretEscapes: true });
+    const result = await new ReplacementEngine().processFiles(
+      paths('old.txt'),
+      [rule('old', 'a\\nb')],
+      { includeFileName: true, interpretEscapes: true }
+    );
     expect(exists('old.txt')).toBe(true);
     expect(result.results[0].renameError).toEqual(expect.any(String));
   });
@@ -391,8 +405,7 @@ describe('ReplacementEngine: 停止・一時停止', () => {
     names.forEach(name => write(name, 'old'));
     return paths(...names);
   };
-  const countReplaced = () =>
-    fs.readdirSync(dir).filter(name => read(name) === 'new').length;
+  const countReplaced = () => fs.readdirSync(dir).filter(name => read(name) === 'new').length;
   const newEngine = () => new ReplacementEngine({ progressUpdateInterval: 0 });
   const flush = () => new Promise(resolve => setTimeout(resolve, 50));
 
@@ -482,4 +495,3 @@ describe('ReplacementEngine: 停止・一時停止', () => {
     expect(new ReplacementEngine().pauseProcessing()).toBe(false);
   });
 });
-
