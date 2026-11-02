@@ -84,11 +84,6 @@ class MultiGrepReplacerUI {
       configLoadButton.addEventListener('click', () => this.handleConfigLoad());
     }
 
-    const configSaveButton = document.getElementById('configSaveButton');
-    if (configSaveButton) {
-      configSaveButton.addEventListener('click', () => this.handleConfigSave());
-    }
-
     const configRecentButton = document.getElementById('configRecentButton');
     if (configRecentButton) {
       configRecentButton.addEventListener('click', () => this.handleConfigRecent());
@@ -103,11 +98,6 @@ class MultiGrepReplacerUI {
     const fileSearchButton = document.getElementById('fileSearchButton');
     if (fileSearchButton) {
       fileSearchButton.addEventListener('click', () => this.handleFileSearch());
-    }
-
-    const fileReadButton = document.getElementById('fileReadButton');
-    if (fileReadButton) {
-      fileReadButton.addEventListener('click', () => this.handleFileRead());
     }
 
     // 新しいファイル検索エンジンテストボタン
@@ -127,16 +117,6 @@ class MultiGrepReplacerUI {
     }
 
     // 置換エンジンのイベントリスナー設定
-    const replacementProcessButton = document.getElementById('replacementProcessButton');
-    if (replacementProcessButton) {
-      replacementProcessButton.addEventListener('click', () => this.handleReplacementProcess());
-    }
-
-    const replacementPreviewButton = document.getElementById('replacementPreviewButton');
-    if (replacementPreviewButton) {
-      replacementPreviewButton.addEventListener('click', () => this.handleReplacementPreview());
-    }
-
     const cancelReplacementButton = document.getElementById('cancelReplacementButton');
     if (cancelReplacementButton) {
       cancelReplacementButton.addEventListener('click', () => this.handleCancelReplacement());
@@ -442,84 +422,6 @@ ${JSON.stringify(result.config, null, 2)}`;
   }
 
   /**
-   * 設定保存テスト
-   */
-  async handleConfigSave() {
-    const startTime = performance.now();
-
-    try {
-      this.updateStatus('Saving config...', '💾');
-
-      // テスト用設定作成
-      const testConfig = {
-        app_info: {
-          name: 'Test Configuration',
-          version: '1.0.0',
-          created_at: new Date().toISOString(),
-          description: 'Test config created by UI',
-          author: 'Test User',
-        },
-        replacements: [
-          {
-            id: 'test_rule_1',
-            from: 'test-old',
-            to: 'test-new',
-            enabled: true,
-            description: 'Test replacement rule',
-          },
-        ],
-        target_settings: {
-          file_extensions: ['.html', '.css', '.js'],
-          exclude_patterns: ['node_modules/**', '.git/**'],
-          include_subdirectories: true,
-          max_file_size: 104857600,
-          encoding: 'utf-8',
-        },
-        replacement_settings: {
-          case_sensitive: true,
-          use_regex: false,
-          backup_enabled: false,
-        },
-        ui_settings: {
-          theme: 'auto',
-          window: { width: 800, height: 700 },
-        },
-        advanced_settings: {
-          max_concurrent_files: 10,
-          ui_response_target: 100,
-        },
-      };
-
-      // プラットフォーム非依存の一時ファイルパス作成
-      // メインプロセス側で適切な一時ディレクトリを解決
-      const tempPath = `multi-grep-replacer-test-${Date.now()}.json`;
-
-      const result = await window.electronAPI.saveConfig(testConfig, tempPath);
-      const responseTime = performance.now() - startTime;
-      this.updateResponseTime(responseTime);
-
-      if (result.success) {
-        const resultText = `✅ 設定保存成功!
-
-応答時間: ${responseTime.toFixed(2)}ms
-保存先: ${tempPath}
-設定内容: Test Configuration
-テストルール: test-old → test-new`;
-
-        this.displayResult('configResult', resultText);
-      } else {
-        this.displayResult('configResult', `❌ エラー: ${result.error}`);
-      }
-
-      this.updateStatus('Ready', '⚡');
-    } catch (error) {
-      console.error('❌ Config save test failed:', error);
-      this.displayResult('configResult', `❌ エラー: ${error.message}`);
-      this.updateStatus('Error', '🚨');
-    }
-  }
-
-  /**
    * 最近の設定確認テスト
    */
   async handleConfigRecent() {
@@ -666,56 +568,6 @@ ${
       this.updateStatus('Ready', '⚡');
     } catch (error) {
       console.error('❌ File search test failed:', error);
-      this.displayResult('fileResult', `❌ エラー: ${error.message}`);
-      this.updateStatus('Error', '🚨');
-    }
-  }
-
-  /**
-   * ファイル読み込みテスト
-   */
-  async handleFileRead() {
-    const startTime = performance.now();
-
-    try {
-      this.updateStatus('Reading file...', '📄');
-
-      // テスト用ファイル（選択ファイルがない場合はデフォルトの設定ファイルを使用）
-      const testFilePath = this.selectedFile || 'config/default.json';
-
-      const result = await window.electronAPI.readFile(testFilePath);
-      const responseTime = performance.now() - startTime;
-      this.updateResponseTime(responseTime);
-
-      if (result.success) {
-        const { content } = result;
-        const lines = content.split('\n').length;
-        const size = content.length;
-
-        const resultText = `✅ ファイル読み込み成功!
-
-応答時間: ${responseTime.toFixed(2)}ms
-ファイルパス: ${testFilePath}
-ファイルサイズ: ${size} 文字
-行数: ${lines}
-
-内容プレビュー（最初の${MultiGrepReplacerUI.FILE_LIST_ITEM_COUNT}行）:
-${content.split('\n').slice(0, MultiGrepReplacerUI.FILE_LIST_ITEM_COUNT).join('\n')}
-
-${
-  lines > MultiGrepReplacerUI.FILE_LIST_ITEM_COUNT
-    ? `... 他 ${lines - MultiGrepReplacerUI.FILE_LIST_ITEM_COUNT} 行`
-    : ''
-}`;
-
-        this.displayResult('fileResult', resultText);
-      } else {
-        this.displayResult('fileResult', `❌ エラー: ${result.error}`);
-      }
-
-      this.updateStatus('Ready', '⚡');
-    } catch (error) {
-      console.error('❌ File read test failed:', error);
       this.displayResult('fileResult', `❌ エラー: ${error.message}`);
       this.updateStatus('Error', '🚨');
     }
@@ -962,132 +814,6 @@ ${JSON.stringify(stats, null, 2)}`;
     // テスト用ルール初期化
     this.replacementRules = [];
     this.lastSearchFiles = [];
-  }
-
-  /**
-   * 置換処理実行テスト
-   */
-  async handleReplacementProcess() {
-    const startTime = performance.now();
-
-    try {
-      this.updateStatus('置換処理中...', '🔄');
-
-      // テスト用ファイルが必要なので、まず検索を実行
-      if (this.lastSearchFiles.length === 0) {
-        this.displayResult('replacementResult', '⚠️ 先にファイル検索を実行してください');
-        return;
-      }
-
-      // テスト用ルールが無い場合、デフォルトルールを追加
-      if (this.replacementRules.length === 0) {
-        this.replacementRules = [
-          { from: 'test', to: 'TEST', enabled: true, id: 'rule1' },
-          { from: 'example', to: 'EXAMPLE', enabled: true, id: 'rule2' },
-        ];
-      }
-
-      const testOptions = {
-        caseSensitive: true,
-        dryRun: false,
-      };
-
-      const result = await window.electronAPI.processFiles(
-        this.lastSearchFiles.slice(0, 5), // 最初の5ファイルのみ
-        this.replacementRules,
-        testOptions
-      );
-
-      const responseTime = performance.now() - startTime;
-      this.updateResponseTime(responseTime);
-
-      if (result.success) {
-        const resultText = `✅ 置換処理成功!
-
-応答時間: ${responseTime.toFixed(2)}ms
-
-統計情報:
-- 処理ファイル数: ${result.stats.processedFiles}
-- 変更ファイル数: ${result.stats.modifiedFiles}
-- 総置換回数: ${result.stats.totalReplacements}
-- エラー数: ${result.stats.errors.length}
-
-詳細結果:
-${result.results
-  .slice(0, 3)
-  .map(r => `- ${r.path}: ${r.replacements}回置換`)
-  .join('\n')}`;
-
-        this.displayResult('replacementResult', resultText);
-      } else {
-        this.displayResult('replacementResult', `❌ エラー: ${result.error}`);
-      }
-
-      this.updateStatus('Ready', '⚡');
-    } catch (error) {
-      console.error('❌ Replacement processing failed:', error);
-      this.displayResult('replacementResult', `❌ エラー: ${error.message}`);
-      this.updateStatus('Error', '🚨');
-    }
-  }
-
-  /**
-   * 置換プレビュー生成テスト
-   */
-  async handleReplacementPreview() {
-    const startTime = performance.now();
-
-    try {
-      this.updateStatus('プレビュー生成中...', '👀');
-
-      if (this.lastSearchFiles.length === 0) {
-        this.displayResult('replacementResult', '⚠️ 先にファイル検索を実行してください');
-        return;
-      }
-
-      if (this.replacementRules.length === 0) {
-        this.replacementRules = [{ from: 'test', to: 'TEST', enabled: true, id: 'rule1' }];
-      }
-
-      const result = await window.electronAPI.generatePreview(
-        this.lastSearchFiles.slice(0, 3),
-        this.replacementRules,
-        5
-      );
-
-      const responseTime = performance.now() - startTime;
-      this.updateResponseTime(responseTime);
-
-      if (result.success) {
-        const { preview } = result;
-        let resultText = `👀 置換プレビュー生成完了!
-
-応答時間: ${responseTime.toFixed(2)}ms
-プレビュー件数: ${preview.length}件
-
-`;
-
-        preview.forEach((item, index) => {
-          resultText += `\n${index + 1}. ${item.path}`;
-          item.changes.forEach(change => {
-            resultText += `\n   ${change.rule} (${change.totalCount}箇所)`;
-            change.matches.slice(0, 2).forEach(match => {
-              resultText += `\n   L${match.line}: ${match.context}`;
-            });
-          });
-        });
-
-        this.displayResult('replacementResult', resultText);
-      } else {
-        this.displayResult('replacementResult', `❌ エラー: ${result.error}`);
-      }
-
-      this.updateStatus('Ready', '⚡');
-    } catch (error) {
-      console.error('❌ Replacement preview failed:', error);
-      this.displayResult('replacementResult', `❌ エラー: ${error.message}`);
-      this.updateStatus('Error', '🚨');
-    }
   }
 
   /**

@@ -10,6 +10,7 @@ const GrepEngine = require('./grep-engine');
 const DebugLogger = require('./debug-logger');
 const PerformanceOptimizer = require('./performance-optimizer');
 const MemoryManager = require('./memory-manager');
+const { isTrustedSender, applyWindowSecurity } = require('./window-security');
 
 // Vibe Logger初期化（グローバル） - 動的import後に初期化
 global.vibeLogger = null;
@@ -25,6 +26,7 @@ class MultiGrepReplacerApp {
     this.startTime = performance.now();
     this.initializationTracker = 'app-initialization';
     this.fileSearchEngine = new FileSearchEngine();
+    this.appHtmlPath = path.join(__dirname, '../renderer/index.html');
     this.replacementEngine = new ReplacementEngine();
     this.grepEngine = new GrepEngine();
     this.performanceOptimizer = null; // 初期化後に設定
@@ -196,6 +198,7 @@ class MultiGrepReplacerApp {
           webSecurity: true,
           allowRunningInsecureContent: false,
           experimentalFeatures: false,
+          sandbox: true,
 
           // preload スクリプト
           preload: path.join(__dirname, '../preload/preload.js'),
@@ -207,7 +210,12 @@ class MultiGrepReplacerApp {
       await DebugLogger.info('Security settings validation', { isValid: securityValid });
 
       // HTMLファイル読み込み
-      const htmlPath = path.join(__dirname, '../renderer/index.html');
+      const htmlPath = this.appHtmlPath;
+
+      // アプリのページ以外への遷移と新しいウィンドウを拒否
+      applyWindowSecurity(this.mainWindow.webContents, htmlPath, (type, url) => {
+        DebugLogger.warn('Blocked by window security', { type, url });
+      });
 
       await DebugLogger.debug('Loading HTML file', {
         htmlPath,
@@ -342,11 +350,27 @@ class MultiGrepReplacerApp {
   /**
    * IPC通信ハンドラー設定
    */
+  /**
+   * 送信元を検証する IPC ハンドラーを登録する
+   */
+  handleIpc(channel, handler) {
+    ipcMain.handle(channel, (event, ...args) => {
+      if (!isTrustedSender(event, this.appHtmlPath)) {
+        DebugLogger.warn('Blocked IPC from untrusted sender', {
+          channel,
+          url: event.senderFrame?.url,
+        });
+        throw new Error(`Untrusted IPC sender: ${channel}`);
+      }
+      return handler(event, ...args);
+    });
+  }
+
   setupIpcHandlers() {
     DebugLogger.debug('Setting up IPC handlers');
 
     // Vibe Logger IPC ハンドラー
-    ipcMain.handle('vibe-log', async (event, level, operation, message, options) => {
+    this.handleIpc('vibe-log', async (event, level, operation, message, options) => {
       try {
         if (global.vibeLogger && global.vibeLogger[level]) {
           await global.vibeLogger[level](operation, message, options);
@@ -362,7 +386,7 @@ class MultiGrepReplacerApp {
     });
 
     // 基本通信テスト（ping-pong）
-    ipcMain.handle('ping', async () => {
+    this.handleIpc('ping', async () => {
       const operationId = 'ipc-ping';
       DebugLogger.startPerformance(operationId);
 
@@ -380,7 +404,7 @@ class MultiGrepReplacerApp {
     });
 
     // アプリバージョン取得
-    ipcMain.handle('get-version', async () => {
+    this.handleIpc('get-version', async () => {
       const operationId = 'ipc-get-version';
       DebugLogger.startPerformance(operationId);
 
@@ -415,7 +439,7 @@ class MultiGrepReplacerApp {
     });
 
     // アプリ情報取得
-    ipcMain.handle('get-app-info', async () => {
+    this.handleIpc('get-app-info', async () => {
       const operationId = 'ipc-get-app-info';
       DebugLogger.startPerformance(operationId);
 
@@ -432,21 +456,19 @@ class MultiGrepReplacerApp {
     });
 
     // 設定管理 API
-    ipcMain.handle('load-config', async (event, filePath) => {
+    this.handleIpc('load-config', async () => {
       const operationId = 'ipc-load-config';
       DebugLogger.startPerformance(operationId);
+      let filePath = null;
 
       try {
-        // filePathが指定されていない場合は、ファイル選択ダイアログを表示
-        if (!filePath) {
-          await DebugLogger.debug('No file path provided, opening file dialog');
-          filePath = await FileOperations.selectLoadConfigFile(this.mainWindow);
+        // 読み込むファイルはダイアログでのみ選ぶ（レンダラーからパスを受け取らない）
+        filePath = await FileOperations.selectLoadConfigFile(this.mainWindow);
 
-          if (!filePath) {
-            await DebugLogger.debug('Config file selection cancelled');
-            await DebugLogger.endPerformance(operationId, { cancelled: true });
-            return { success: false, cancelled: true };
-          }
+        if (!filePath) {
+          await DebugLogger.debug('Config file selection cancelled');
+          await DebugLogger.endPerformance(operationId, { cancelled: true });
+          return { success: false, cancelled: true };
         }
 
         await DebugLogger.debug('Loading config via IPC', { filePath });
@@ -464,21 +486,19 @@ class MultiGrepReplacerApp {
       }
     });
 
-    ipcMain.handle('save-config', async (event, config, filePath) => {
+    this.handleIpc('save-config', async (event, config) => {
       const operationId = 'ipc-save-config';
       DebugLogger.startPerformance(operationId);
+      let filePath = null;
 
       try {
-        // filePathが指定されていない場合は、ファイル保存ダイアログを表示
-        if (!filePath) {
-          await DebugLogger.debug('No file path provided, opening save dialog');
-          filePath = await FileOperations.selectSaveConfigFile(this.mainWindow);
+        // 保存先はダイアログでのみ選ぶ（レンダラーからパスを受け取らない）
+        filePath = await FileOperations.selectSaveConfigFile(this.mainWindow);
 
-          if (!filePath) {
-            await DebugLogger.debug('Config save cancelled');
-            await DebugLogger.endPerformance(operationId, { cancelled: true });
-            return { success: false, cancelled: true };
-          }
+        if (!filePath) {
+          await DebugLogger.debug('Config save cancelled');
+          await DebugLogger.endPerformance(operationId, { cancelled: true });
+          return { success: false, cancelled: true };
         }
 
         await DebugLogger.debug('Saving config via IPC', { filePath });
@@ -496,7 +516,7 @@ class MultiGrepReplacerApp {
       }
     });
 
-    ipcMain.handle('get-default-config', async () => {
+    this.handleIpc('get-default-config', async () => {
       const operationId = 'ipc-get-default-config';
       DebugLogger.startPerformance(operationId);
 
@@ -515,7 +535,7 @@ class MultiGrepReplacerApp {
       }
     });
 
-    ipcMain.handle('get-recent-configs', async () => {
+    this.handleIpc('get-recent-configs', async () => {
       const operationId = 'ipc-get-recent-configs';
       DebugLogger.startPerformance(operationId);
 
@@ -538,7 +558,7 @@ class MultiGrepReplacerApp {
     });
 
     // ファイル操作 API
-    ipcMain.handle('select-folder', async () => {
+    this.handleIpc('select-folder', async () => {
       const operationId = 'ipc-select-folder';
       DebugLogger.startPerformance(operationId);
 
@@ -561,7 +581,7 @@ class MultiGrepReplacerApp {
     });
 
     // フォルダパス検証
-    ipcMain.handle('validate-folder-path', async (event, folderPath) => {
+    this.handleIpc('validate-folder-path', async (event, folderPath) => {
       const operationId = 'ipc-validate-folder-path';
       DebugLogger.startPerformance(operationId);
 
@@ -622,7 +642,7 @@ class MultiGrepReplacerApp {
       }
     });
 
-    ipcMain.handle('find-files', async (event, directory, extensions, excludePatterns) => {
+    this.handleIpc('find-files', async (event, directory, extensions, excludePatterns) => {
       const operationId = 'ipc-find-files';
       DebugLogger.startPerformance(operationId);
 
@@ -650,58 +670,8 @@ class MultiGrepReplacerApp {
       }
     });
 
-    ipcMain.handle('read-file', async (event, filePath) => {
-      const operationId = 'ipc-read-file';
-      DebugLogger.startPerformance(operationId);
-
-      try {
-        await DebugLogger.debug('Reading file via IPC', { filePath });
-        const content = await FileOperations.readFileContent(filePath);
-        await DebugLogger.endPerformance(operationId, {
-          success: true,
-          filePath,
-          contentLength: content.length,
-        });
-        return { success: true, content };
-      } catch (error) {
-        await DebugLogger.logError(error, {
-          operation: 'read-file',
-          filePath,
-          component: 'IPC-Handler',
-        });
-        await DebugLogger.endPerformance(operationId, { success: false });
-        return { success: false, error: error.message };
-      }
-    });
-
-    ipcMain.handle('write-file', async (event, filePath, content) => {
-      const operationId = 'ipc-write-file';
-      DebugLogger.startPerformance(operationId);
-
-      try {
-        await DebugLogger.debug('Writing file via IPC', {
-          filePath,
-          contentLength: content.length,
-        });
-        await FileOperations.writeFileContent(filePath, content);
-        await DebugLogger.endPerformance(operationId, {
-          success: true,
-          filePath,
-        });
-        return { success: true };
-      } catch (error) {
-        await DebugLogger.logError(error, {
-          operation: 'write-file',
-          filePath,
-          component: 'IPC-Handler',
-        });
-        await DebugLogger.endPerformance(operationId, { success: false });
-        return { success: false, error: error.message };
-      }
-    });
-
     // 新しいファイル検索エンジン API
-    ipcMain.handle('search-files', async (event, directory, extensions, options = {}) => {
+    this.handleIpc('search-files', async (event, directory, extensions, options = {}) => {
       const operationId = 'ipc-search-files';
       DebugLogger.startPerformance(operationId);
 
@@ -739,7 +709,7 @@ class MultiGrepReplacerApp {
     });
 
     // ファイル検索キャンセル
-    ipcMain.handle('cancel-search', async () => {
+    this.handleIpc('cancel-search', async () => {
       const operationId = 'ipc-cancel-search';
       DebugLogger.startPerformance(operationId);
 
@@ -759,7 +729,7 @@ class MultiGrepReplacerApp {
     });
 
     // ファイル検索統計情報取得
-    ipcMain.handle('get-search-stats', async () => {
+    this.handleIpc('get-search-stats', async () => {
       const operationId = 'ipc-get-search-stats';
       DebugLogger.startPerformance(operationId);
 
@@ -777,123 +747,8 @@ class MultiGrepReplacerApp {
       }
     });
 
-    // 置換エンジン API
-    ipcMain.handle('process-files', async (event, files, rules, options = {}) => {
-      const operationId = 'ipc-process-files';
-      DebugLogger.startPerformance(operationId);
-
-      try {
-        await DebugLogger.debug('Processing files with replacement engine', {
-          fileCount: files.length,
-          ruleCount: rules.length,
-          options,
-        });
-
-        // 進捗通知の設定
-        this.replacementEngine.removeAllListeners('progress');
-        this.replacementEngine.removeAllListeners('start');
-        this.replacementEngine.removeAllListeners('complete');
-        this.replacementEngine.removeAllListeners('error');
-
-        this.replacementEngine.on('progress', progressData => {
-          event.sender.send('replacement-progress', progressData);
-        });
-
-        this.replacementEngine.on('start', startData => {
-          event.sender.send('replacement-start', startData);
-        });
-
-        this.replacementEngine.on('complete', completeData => {
-          event.sender.send('replacement-complete', completeData);
-        });
-
-        this.replacementEngine.on('error', errorData => {
-          event.sender.send('replacement-error', errorData);
-        });
-
-        // 置換エンジンのオプション設定
-        this.replacementEngine.options = { ...this.replacementEngine.options, ...options };
-
-        const result = await this.replacementEngine.processFiles(files, rules);
-
-        await DebugLogger.endPerformance(operationId, {
-          success: true,
-          modifiedFiles: result.stats.modifiedFiles,
-          totalReplacements: result.stats.totalReplacements,
-        });
-
-        return result;
-      } catch (error) {
-        await DebugLogger.logError(error, {
-          operation: 'process-files',
-          fileCount: files.length,
-          component: 'IPC-Handler',
-        });
-        await DebugLogger.endPerformance(operationId, { success: false });
-        throw error;
-      }
-    });
-
-    // 単一ファイル処理
-    ipcMain.handle('process-file', async (event, filePath, rules) => {
-      const operationId = 'ipc-process-file';
-      DebugLogger.startPerformance(operationId);
-
-      try {
-        await DebugLogger.debug('Processing single file', { filePath, ruleCount: rules.length });
-        const result = await this.replacementEngine.processFile(filePath, rules);
-
-        await DebugLogger.endPerformance(operationId, {
-          success: true,
-          modified: result.modified,
-          replacements: result.replacements,
-        });
-
-        return { success: true, result };
-      } catch (error) {
-        await DebugLogger.logError(error, {
-          operation: 'process-file',
-          filePath,
-          component: 'IPC-Handler',
-        });
-        await DebugLogger.endPerformance(operationId, { success: false });
-        return { success: false, error: error.message };
-      }
-    });
-
-    // 置換プレビュー生成
-    ipcMain.handle('generate-preview', async (event, files, rules, limit = 10) => {
-      const operationId = 'ipc-generate-preview';
-      DebugLogger.startPerformance(operationId);
-
-      try {
-        await DebugLogger.debug('Generating replacement preview', {
-          fileCount: files.length,
-          ruleCount: rules.length,
-          limit,
-        });
-
-        const preview = await this.replacementEngine.generatePreview(files, rules, limit);
-
-        await DebugLogger.endPerformance(operationId, {
-          success: true,
-          previewCount: preview.length,
-        });
-
-        return { success: true, preview };
-      } catch (error) {
-        await DebugLogger.logError(error, {
-          operation: 'generate-preview',
-          fileCount: files.length,
-          component: 'IPC-Handler',
-        });
-        await DebugLogger.endPerformance(operationId, { success: false });
-        return { success: false, error: error.message };
-      }
-    });
-
     // 置換処理キャンセル
-    ipcMain.handle('cancel-replacement', async () => {
+    this.handleIpc('cancel-replacement', async () => {
       const operationId = 'ipc-cancel-replacement';
       DebugLogger.startPerformance(operationId);
 
@@ -912,17 +767,17 @@ class MultiGrepReplacerApp {
     });
 
     // 置換処理の一時停止
-    ipcMain.handle('pause-replacement', async () => {
+    this.handleIpc('pause-replacement', async () => {
       return { success: true, paused: this.replacementEngine.pauseProcessing() };
     });
 
     // 置換処理の再開
-    ipcMain.handle('resume-replacement', async () => {
+    this.handleIpc('resume-replacement', async () => {
       return { success: true, resumed: this.replacementEngine.resumeProcessing() };
     });
 
     // 置換統計情報取得
-    ipcMain.handle('get-replacement-stats', async () => {
+    this.handleIpc('get-replacement-stats', async () => {
       const operationId = 'ipc-get-replacement-stats';
       DebugLogger.startPerformance(operationId);
 
@@ -941,7 +796,7 @@ class MultiGrepReplacerApp {
     });
 
     // 包括的な置換実行ハンドラー
-    ipcMain.handle('executeReplacement', async (event, config) => {
+    this.handleIpc('executeReplacement', async (event, config) => {
       const operationId = 'ipc-execute-replacement';
       await DebugLogger.startPerformance(operationId);
 
@@ -1044,7 +899,7 @@ class MultiGrepReplacerApp {
     });
 
     // Grep内容検索
-    ipcMain.handle('grep-search', async (event, config) => {
+    this.handleIpc('grep-search', async (event, config) => {
       const operationId = 'ipc-grep-search';
       await DebugLogger.startPerformance(operationId);
 
@@ -1111,7 +966,7 @@ class MultiGrepReplacerApp {
     });
 
     // Grep検索キャンセル
-    ipcMain.handle('grep-cancel', async () => {
+    this.handleIpc('grep-cancel', async () => {
       try {
         this.grepEngine.cancel();
         return { success: true };
@@ -1121,7 +976,7 @@ class MultiGrepReplacerApp {
     });
 
     // パフォーマンス最適化 API
-    ipcMain.handle('get-performance-stats', async () => {
+    this.handleIpc('get-performance-stats', async () => {
       const operationId = 'ipc-get-performance-stats';
       DebugLogger.startPerformance(operationId);
 
@@ -1145,7 +1000,7 @@ class MultiGrepReplacerApp {
       }
     });
 
-    ipcMain.handle('optimize-memory', async () => {
+    this.handleIpc('optimize-memory', async () => {
       const operationId = 'ipc-optimize-memory';
       DebugLogger.startPerformance(operationId);
 
@@ -1170,7 +1025,7 @@ class MultiGrepReplacerApp {
       }
     });
 
-    ipcMain.handle('optimize-file-processing', async (event, files, processor) => {
+    this.handleIpc('optimize-file-processing', async (event, files, processor) => {
       const operationId = 'ipc-optimize-file-processing';
       DebugLogger.startPerformance(operationId);
 

@@ -26,6 +26,7 @@ src/
 │   ├── replacement-engine.js   # 内容の置換とリネーム
 │   ├── grep-engine.js          # 内容・ファイル名の検索
 │   ├── target-options.js       # エスケープ解釈・名前の分割・名前の検証（純粋関数）
+│   ├── window-security.js      # 画面遷移の制限・IPC送信元の検証
 │   ├── performance-optimizer.js# 処理戦略（置換の実行経路では未使用）
 │   ├── memory-manager.js       # メモリ監視
 │   ├── debug-logger.js         # ログ・性能計測
@@ -89,7 +90,7 @@ UIController.handleGrepSearch()
 
 ## 4. IPC API
 
-`config` は `invoke` で渡すオブジェクトです。
+`config` は `invoke` で渡すオブジェクトです。ハンドラーは `handleIpc()` で登録し、送信元が自分の `index.html` でなければ拒否します。
 
 ### executeReplacement
 
@@ -136,10 +137,10 @@ UIController.handleGrepSearch()
 | 分類 | チャンネル |
 |---|---|
 | 基本 | `ping` `get-version` `get-app-info` `vibe-log` |
-| 設定 | `load-config` `save-config` `get-default-config` `get-recent-configs` |
-| ファイル | `select-folder` `validate-folder-path` `find-files` `read-file` `write-file` |
+| 設定 | `load-config` `save-config`（ダイアログ専用）`get-default-config` `get-recent-configs` |
+| ファイル | `select-folder` `validate-folder-path` `find-files` |
 | 検索 | `search-files` `cancel-search` `get-search-stats` `grep-cancel` |
-| 置換 | `process-files` `process-file` `generate-preview` `cancel-replacement` `pause-replacement` `resume-replacement` `get-replacement-stats` |
+| 置換 | `cancel-replacement` `pause-replacement` `resume-replacement` `get-replacement-stats` |
 | 性能 | `get-performance-stats` `optimize-memory` `optimize-file-processing` |
 | 進捗通知 | `replacement-progress` `grep-progress` |
 
@@ -186,8 +187,13 @@ UIController.handleGrepSearch()
 
 ## 7. セキュリティ
 
-- `contextIsolation: true`、`nodeIntegration: false`、`webSecurity: true`
-- IPCの追加は preload の `contextBridge` 経由のみ
+- `contextIsolation: true`、`nodeIntegration: false`、`sandbox: true`、`webSecurity: true`
+- IPCの追加は preload の `contextBridge` 経由のみ。ハンドラーは `ipcMain.handle` ではなく `handleIpc()` で登録する
+- `applyWindowSecurity()` で、アプリのページ以外への遷移と新しいウィンドウを拒否する
+- URLの比較は文字列ではなく、パスへ戻して行う（`isAppUrl()`）。空白や日本語の表記揺れで全IPCが止まるのを防ぐ
+- CSPの `script-src` は `'self'` のみ。インラインスクリプトと `on*` 属性は使えない。`style-src` の `'unsafe-inline'` は動的な `<style>` と `style` 属性のために残している
+- レンダラーから任意のパスを読み書きするAPIを公開しない。設定ファイルはダイアログで選ぶ
+- preload は `electron` 以外を `require` しない（サンドボックスで読み込めない）
 - ユーザー値を `innerHTML` の属性へ文字列で埋め込まない。生成後に `.value` や `.textContent` で設定する
 - ファイル名やエラー文を含む通知は `textContent` で表示する（`showError`、`showSuccess`、`showToast`）
 - リネーム先は `validateNewName()` で検証してから `path.join` する

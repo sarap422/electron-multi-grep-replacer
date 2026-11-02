@@ -108,14 +108,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   // 設定管理 API
   /**
-   * 設定ファイル読み込み
-   * @param {string} [filePath] - 設定ファイルパス（省略時はダイアログ表示）
+   * 設定ファイル読み込み（ダイアログで選択）
    * @returns {Promise<Object>} 設定オブジェクト
    */
-  loadConfig: async (filePath = null) => {
-    console.log('📖 Loading config via IPC:', filePath);
+  loadConfig: async () => {
+    console.log('📖 Loading config via IPC');
     try {
-      const result = await ipcRenderer.invoke('load-config', filePath);
+      const result = await ipcRenderer.invoke('load-config');
       console.log('📖 Config load result:', result);
       return result;
     } catch (error) {
@@ -125,15 +124,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
 
   /**
-   * 設定ファイル保存
+   * 設定ファイル保存（ダイアログで保存先を選択）
    * @param {Object} config - 設定オブジェクト
-   * @param {string} [filePath] - 保存先パス（省略時はダイアログ表示）
    * @returns {Promise<Object>} 保存結果
    */
-  saveConfig: async (config, filePath = null) => {
-    console.log('💾 Saving config via IPC:', filePath);
+  saveConfig: async config => {
+    console.log('💾 Saving config via IPC');
     try {
-      const result = await ipcRenderer.invoke('save-config', config, filePath);
+      const result = await ipcRenderer.invoke('save-config', config);
       console.log('💾 Config save result:', result);
       return result;
     } catch (error) {
@@ -223,41 +221,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return result;
     } catch (error) {
       console.error('❌ Find files failed:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * ファイル読み込み
-   * @param {string} filePath - ファイルパス
-   * @returns {Promise<Object>} ファイル内容
-   */
-  readFile: async filePath => {
-    console.log('📄 Reading file via IPC:', filePath);
-    try {
-      const result = await ipcRenderer.invoke('read-file', filePath);
-      console.log('📄 Read file result:', result);
-      return result;
-    } catch (error) {
-      console.error('❌ Read file failed:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * ファイル書き込み
-   * @param {string} filePath - ファイルパス
-   * @param {string} content - ファイル内容
-   * @returns {Promise<Object>} 書き込み結果
-   */
-  writeFile: async (filePath, content) => {
-    console.log('💾 Writing file via IPC:', filePath);
-    try {
-      const result = await ipcRenderer.invoke('write-file', filePath, content);
-      console.log('💾 Write file result:', result);
-      return result;
-    } catch (error) {
-      console.error('❌ Write file failed:', error);
       throw error;
     }
   },
@@ -370,70 +333,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
 
   // 置換エンジン API
-  /**
-   * 複数ファイル一括置換処理
-   * @param {Array} files - ファイルパス配列
-   * @param {Array} rules - 置換ルール配列
-   * @param {Object} options - 置換オプション
-   * @returns {Promise<Object>} 置換結果
-   */
-  processFiles: async (files, rules, options = {}) => {
-    console.log('🔄 Processing files with replacement engine:', {
-      fileCount: files.length,
-      ruleCount: rules.length,
-      options,
-    });
-    try {
-      const result = await ipcRenderer.invoke('process-files', files, rules, options);
-      console.log('🔄 Process files result:', result);
-      return result;
-    } catch (error) {
-      console.error('❌ Process files failed:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * 単一ファイル置換処理
-   * @param {string} filePath - ファイルパス
-   * @param {Array} rules - 置換ルール配列
-   * @returns {Promise<Object>} 置換結果
-   */
-  processFile: async (filePath, rules) => {
-    console.log('📝 Processing single file:', { filePath, ruleCount: rules.length });
-    try {
-      const result = await ipcRenderer.invoke('process-file', filePath, rules);
-      console.log('📝 Process file result:', result);
-      return result;
-    } catch (error) {
-      console.error('❌ Process file failed:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * 置換プレビュー生成
-   * @param {Array} files - ファイルパス配列
-   * @param {Array} rules - 置換ルール配列
-   * @param {number} limit - プレビュー件数制限
-   * @returns {Promise<Object>} プレビュー結果
-   */
-  generatePreview: async (files, rules, limit = 10) => {
-    console.log('👀 Generating replacement preview:', {
-      fileCount: files.length,
-      ruleCount: rules.length,
-      limit,
-    });
-    try {
-      const result = await ipcRenderer.invoke('generate-preview', files, rules, limit);
-      console.log('👀 Generate preview result:', result);
-      return result;
-    } catch (error) {
-      console.error('❌ Generate preview failed:', error);
-      throw error;
-    }
-  },
-
   /**
    * 置換実行
    * @param {Object} config - 置換設定

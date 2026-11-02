@@ -252,51 +252,6 @@ class ReplacementEngine extends EventEmitter {
   }
 
   /**
-   * 置換プレビューを生成
-   */
-  async generatePreview(files, rules, limit = 10) {
-    const previewResults = [];
-    const activeRules = rules.filter(rule => rule.enabled !== false);
-
-    // 最初のN個のファイルのみプレビュー
-    const previewFiles = files.slice(0, limit);
-
-    for (const filePath of previewFiles) {
-      try {
-        const content = await fs.readFile(filePath, this.options.encoding);
-        const preview = {
-          path: filePath,
-          changes: [],
-        };
-
-        // 各ルールのプレビュー
-        for (const rule of activeRules) {
-          const matches = this._findMatches(content, rule);
-          if (matches.length > 0) {
-            preview.changes.push({
-              rule: `${rule.from} → ${rule.to}`,
-              matches: matches.slice(0, 3), // 最初の3つのマッチのみ
-              totalCount: matches.length,
-            });
-          }
-        }
-
-        if (preview.changes.length > 0) {
-          previewResults.push(preview);
-        }
-      } catch (error) {
-        // プレビューエラーは無視
-        await DebugLogger.debug('Preview generation failed', {
-          path: filePath,
-          error: error.message,
-        });
-      }
-    }
-
-    return previewResults;
-  }
-
-  /**
    * 処理をキャンセル（処理中のファイルは完了させ、次の区切りで止まる）
    */
   cancelProcessing() {
@@ -510,37 +465,6 @@ class ReplacementEngine extends EventEmitter {
       content: newContent,
       replacements,
     };
-  }
-
-  /**
-   * マッチ箇所を検索（プレビュー用）
-   */
-  _findMatches(content, rule) {
-    const { from } = rule;
-    // Case sensitive setting - use rule-level setting if available, otherwise global setting
-    const caseSensitive =
-      rule.caseSensitive !== undefined ? rule.caseSensitive : this.options.caseSensitive;
-    const flags = caseSensitive ? 'g' : 'gi';
-    const escapedFrom = from.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(escapedFrom, flags);
-
-    const matches = [];
-    let match;
-
-    while ((match = regex.exec(content)) !== null) {
-      const lineStart = content.lastIndexOf('\n', match.index) + 1;
-      const lineEnd = content.indexOf('\n', match.index);
-      const line = content.substring(lineStart, lineEnd === -1 ? content.length : lineEnd);
-      const lineNumber = content.substring(0, match.index).split('\n').length;
-
-      matches.push({
-        line: lineNumber,
-        column: match.index - lineStart,
-        context: line.trim(),
-      });
-    }
-
-    return matches;
   }
 
   /**
